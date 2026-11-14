@@ -5,6 +5,18 @@
 param([switch]$AutoTeste)
 
 $ErrorActionPreference = 'Stop'
+
+# Falha fatal na inicializacao: como o programa roda sem janela (via .vbs), sem isto o erro seria invisivel.
+trap {
+    $detalhe = $_ | Out-String
+    try { "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')  ERRO FATAL: $detalhe" | Out-File (Join-Path $env:TEMP 'AlertaPlantao.log') -Append -Encoding utf8 } catch {}
+    try {
+        Add-Type -AssemblyName System.Windows.Forms
+        [void][System.Windows.Forms.MessageBox]::Show("O Alerta de Plantão não conseguiu iniciar:`n`n$($_.Exception.Message)`n`nDetalhes em %TEMP%\AlertaPlantao.log", 'Alerta de Plantão')
+    } catch {}
+    exit 1
+}
+
 $AppDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Versao = '1.2'
 
@@ -20,12 +32,28 @@ $Config = [ordered]@{
     Brilho         = $true              # brilho verde pulsando nas bordas da tela enquanto houver alerta
 }
 $ConfigPath = Join-Path $AppDir 'config.json'
+$script:cfgAviso = $null
 if (Test-Path $ConfigPath) {
     try {
         $json = Get-Content $ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
         foreach ($p in $json.PSObject.Properties) { if ($Config.Contains($p.Name)) { $Config[$p.Name] = $p.Value } }
-    } catch {}
+    } catch {
+        # JSON invalido: guarda o arquivo do usuario (config.json.erro) em vez de sobrescrever com os padroes
+        $script:cfgAviso = 'O config.json tem erro e foi guardado como config.json.erro. Usando as configurações padrão.'
+        try { Move-Item $ConfigPath ($ConfigPath + '.erro') -Force } catch {}
+    }
 }
+
+# Valores fora da faixa (ou que nao sao numeros) voltam para um limite seguro
+function Limitar($valor, [double]$min, [double]$max, [double]$padrao) {
+    try { $n = [double]$valor } catch { return $padrao }
+    [Math]::Min($max, [Math]::Max($min, $n))
+}
+$Config['Volume']        = Limitar $Config['Volume']        0   1     0.25
+$Config['RepetirSomSeg'] = [int](Limitar $Config['RepetirSomSeg'] 0   3600  30)
+$Config['LarguraCartao'] = [int](Limitar $Config['LarguraCartao'] 300 900   460)
+$Config['IntervaloMs']   = [int](Limitar $Config['IntervaloMs']   500 60000 1500)
+
 $Config | ConvertTo-Json | Out-File $ConfigPath -Encoding utf8   # grava com as chaves novas de cada versao
 
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing, System.Runtime.WindowsRuntime
@@ -50,6 +78,7 @@ function Write-Log([string]$msg) {
     } catch {}
 }
 Write-Log "Iniciado (versao $Versao)"
+if ($script:cfgAviso) { Write-Log $script:cfgAviso }
 
 # ---------------- WinRT: leitura das notificacoes ----------------
 $script:asTask = ([System.WindowsRuntimeSystemExtensions].GetMethods() | Where-Object {
@@ -274,7 +303,8 @@ $script:pollTimer.Add_Tick({
     try {
         $novas = @(Get-NovasNotificacoes)
         foreach ($n in $novas) {
-            Write-Log ("Mensagem (ativo={0}) id={1}: {2} / {3}" -f $script:ativo, $n.Id, $n.Titulo, $n.Corpo)
+            # o texto da mensagem e do cliente: o registro guarda so o nome da conversa
+            Write-Log ("Mensagem (ativo={0}) id={1}: {2}" -f $script:ativo, $n.Id, $n.Titulo)
             if ($script:ativo) { Show-Alert $n.Titulo $n.Corpo }
         }
         if (-not $script:banner) { Update-Tray }
@@ -307,6 +337,7 @@ if ($AutoTeste) {
     })
     $t.Start()
 } else {
-    $script:tray.ShowBalloonTip(2500, 'Alerta de Plantão', 'Monitorando o WhatsApp. Clique no sino para ativar/desativar.', 'Info')
+    if ($script:cfgAviso) { $script:tray.ShowBalloonTip(6000, 'Alerta de Plantão', $script:cfgAviso, 'Warning') }
+    else { $script:tray.ShowBalloonTip(2500, 'Alerta de Plantão', 'Monitorando o WhatsApp. Clique no sino para ativar/desativar.', 'Info') }
 }
 [System.Windows.Forms.Application]::Run()

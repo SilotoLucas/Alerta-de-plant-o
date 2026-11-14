@@ -327,7 +327,8 @@ namespace AP
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (keyData == Keys.Enter || keyData == Keys.Escape || keyData == Keys.Space) { Dismiss(); return true; }
+            // Espaco NAO fecha: e a tecla mais usada ao digitar e fecharia o alerta sem ninguem ler.
+            if (keyData == Keys.Enter || keyData == Keys.Escape) { Dismiss(); return true; }
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
