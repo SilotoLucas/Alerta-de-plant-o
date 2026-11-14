@@ -25,7 +25,8 @@ modo Empresa:  WhatsApp ──notificação──> app ──POST /eventos──
 Estado no celular: só endereço do servidor, token do aparelho, papel, nome e caches de tela (plantão
 ligado, último aviso). O servidor é a fonte da verdade.
 
-**Privacidade:** o aviso leva só o nome da conversa e a quantidade (D11). O texto das mensagens sai do
+**Privacidade:** por padrão o aviso leva só o nome da conversa e a quantidade (D11); na instalação do dono o
+texto está ligado (D22) e aparece no alarme, na tela bloqueada e nos "Últimos avisos" do app (5 mais recentes, só no celular). O texto das mensagens sai do
 celular da empresa para o servidor (a deduplicação precisa dele), mas o servidor guarda só o hash e não o
 repassa por padrão.
 

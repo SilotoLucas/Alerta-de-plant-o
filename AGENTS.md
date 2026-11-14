@@ -94,7 +94,8 @@ real, um teste unitário sem I/O depende dela, ou a fronteira já está declarad
 ## Conteúdo e segurança
 
 - **O texto das mensagens é de cliente.** Por padrão o aviso leva só o nome da conversa e a
-  quantidade (`montarAviso`, D11). Texto em log, em `docs/` ou em fixture: nunca, só dado inventado.
+  quantidade (`montarAviso`, D11). Na produção do dono o texto está ligado (D22): fica em `avisos` por 7 dias
+  e aparece na tela bloqueada. Texto em log, em `docs/` ou em fixture: nunca, só dado inventado.
 - Token de aparelho e segredo só em variável de ambiente ou no armazenamento privado do app; nunca em
   log, em `BuildConfig`, em URL nem no repositório.
 - Recurso que o aparelho não pode ver, ou rota de outro papel: **404**, nunca 403.

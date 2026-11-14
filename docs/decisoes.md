@@ -13,6 +13,15 @@ outro para se explicar.
 **Situação de cada decisão:** *Decidida* já está em vigor. *Proposta* aguarda o OK do dono. D7 a D10
 foram aprovadas em 2026-11-14 (o dono disse "pode seguir com a R1") e valem desde a R1.
 
+## 2026-11-14 (uso real)
+
+**D22. Produção com o texto das mensagens ligado (`PLANTAO_ENVIAR_TEXTO=true`), à vista na tela bloqueada.** *Decidida pelo dono.*
+Motivo: com só "Nova mensagem" o consultor não sabe se é urgente. Substitui o padrão da D11 **na instalação do
+dono**; o padrão do código continua `false`. Consequências assumidas: o texto (até 3 mensagens de 200
+caracteres) fica em `avisos` por até 7 dias (D20) e aparece na tela bloqueada do celular pessoal, para todos os
+consultores da instalação. No app, a tela do modo Pessoal guarda e mostra os 5 últimos avisos (só no
+celular, em `Historico`). Para voltar ao modo discreto: `PLANTAO_ENVIAR_TEXTO=false` e `docker compose up -d`.
+
 ## 2026-11-14 (R4, deploy)
 
 **D18. Deploy como o do Bússola: Caddy do Abanou na borda, timer que puxa a `main` a cada 2 minutos.** *Decidida.*
