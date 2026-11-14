@@ -19,6 +19,9 @@ workspace do Bun: o gate de TypeScript (`bun run validate`) não o enxerga. Rode
 - Nada de versão com `+`, `latest` ou intervalo em `build.gradle.kts`.
 - O build `debug` aceita `http://` e trata `com.android.shell` como WhatsApp, para teste com
   `adb shell "cmd notification post ..."`. O `release` nunca.
+- Alarme: som, vibração e bypass de "Não perturbe" vivem no canal (`Alarme`), que não muda depois de
+  criado: configuração nova = id de canal novo. `Preparo` é a lógica pura (testada na JVM); o resto de
+  `Alarme` só se prova no emulador ou no celular.
 - Emulador: AVD temporário (nunca o `Pixel_8`, que outros projetos usam). Apague ao terminar.
 - Token do aparelho nunca em log, em `BuildConfig` nem no repositório. `BuildConfig.SERVIDOR_PADRAO` é só
   o endereço (debug `http://10.0.2.2:3350`; release vem de `-Pservidor=`).

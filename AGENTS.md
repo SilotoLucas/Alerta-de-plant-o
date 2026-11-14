@@ -10,10 +10,11 @@ infraestrutura, pastas, matriz de importação, portas), [docs/decisoes.md](docs
 não reabra sem motivo novo), [docs/plano-produto.md](docs/plano-produto.md) (fluxo, fases R0–R5) e
 [docs/historico-fases-1-e-2.md](docs/historico-fases-1-e-2.md) (lições das duas primeiras fases).
 
-Estado: **R2 pronta** (R1: API com pareamento por código, evento com deduplicação, plantão por aparelho
+Estado: **R3 pronta** (alarme: canal que fura "Não perturbe", som de alarme que repete até o "Vi", tela cheia
+por cima do bloqueio, guia de permissões na tela e botão "Testar o alarme"; só emulador). **R2 pronta** (R1: API com pareamento por código, evento com deduplicação, plantão por aparelho
 pessoal, "Vi" e entrega por SSE, Postgres; R2: app Android único com modo Empresa e Pessoal falando com
 a API, testado no emulador com notificação simulada). O alerta do Windows segue como antes. O ntfy
-(`deploy/ntfy`) não é mais usado e sai na R4. A **R3** (alarme) **só começa depois do OK do dono**.
+(`deploy/ntfy`) não é mais usado e sai na R4. A **R4** (deploy na VM) **só começa depois do OK do dono**.
 Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
 
 ## Comandos
@@ -169,3 +170,10 @@ Abanou. As deste projeto:
     listener) se testa zerando `inicializado` em `shared_prefs/config.xml` e religando o listener.
 19. **WorkManager limita `Data` a 10 KB:** o evento vai com as últimas 8 mensagens × 200 caracteres
     (`Protocolo`). Mudou o limite, rode `LogicaTest`.
+20. **O canal de notificação não muda depois de criado** (som, vibração, bypass): mudou a configuração do
+    alarme, use um id novo em `Alarme.CANAL` e apague o antigo. Aviso de teste usa o prefixo `teste-`
+    (`Preparo`) e nunca vai ao servidor.
+21. **No emulador, quem tem acesso a notificações (o `WhatsAppListener`) aparece com acesso a "Não
+    perturbe"** (`isNotificationPolicyAccessGranted` vira `true`). Para ver a pendência na tela, desligue o
+    listener: `cmd notification disallow_listener com.silotolucas.alertaplantao/com.silotolucas.alertaplantao.WhatsAppListener`.
+    O emulador também não tem PIN, então "tela bloqueada" só prova que a tela acende e o alarme abre.

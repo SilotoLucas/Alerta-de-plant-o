@@ -17,6 +17,7 @@ modo Empresa:  WhatsApp ──notificação──> app ──POST /eventos──
 | Envio (Empresa) | `EntregaWorker.kt`, `Api.kt` | Fila do WorkManager com internet obrigatória; repete a cada 30 s (linear) até 30 vezes. 401 apaga o pareamento (aparelho revogado) e o app volta à tela do código; outros 4xx não repetem. |
 | Entrega (Pessoal) | `AvisoService.kt`, `Api.kt` | Serviço em primeiro plano com a conexão SSE (`/avisos/fluxo`), reconexão com espera crescente de 1 s a 30 s e `Last-Event-ID` para não perder aviso. Mostra a notificação com o botão **Vi**. |
 | "Vi" | `VistoReceiver.kt`, `EntregaWorker.kt` | Cancela a notificação e avisa o servidor (`POST /avisos/:id/visto`), com repetição se estiver sem rede. |
+| Alarme | `Alarme.kt`, `AlarmeActivity.kt`, `Preparo.kt` | Canal `alarme` (importância alta, som de alarme, vibração, pede para furar o "Não perturbe"); notificação de categoria ALARM com `FLAG_INSISTENT` (o som repete até alguém tocar em **Vi**) e desiste sozinha em 10 min; tela cheia por cima do bloqueio. `Preparo` decide quais permissões faltam. |
 | Plantão | `MainActivity.kt`, `AlertaTile.kt`, `Acoes.kt` | Interruptor no app e botão nas configurações rápidas; o estado vive no servidor, por aparelho (D14). |
 | Religar | `BootReceiver.kt` | Reinicia o `AvisoService` depois de reiniciar o celular ou atualizar o app. |
 | Protocolo | `Protocolo.kt` | Corpo e leitura das respostas, limites (últimas 8 mensagens, 200 caracteres cada), `ParserSse`, `Espera`. É o que os testes JVM cobrem. |
@@ -27,6 +28,20 @@ ligado, último aviso). O servidor é a fonte da verdade.
 **Privacidade:** o aviso leva só o nome da conversa e a quantidade (D11). O texto das mensagens sai do
 celular da empresa para o servidor (a deduplicação precisa dele), mas o servidor guarda só o hash e não o
 repassa por padrão.
+
+## O alarme e o que o celular pessoal precisa liberar
+
+A tela do modo Pessoal lista só o que falta, cada item com seu botão:
+
+| Item | Por quê | Onde se resolve |
+|---|---|---|
+| Notificações ligadas | sem elas nada toca | configurações do app |
+| Acesso a "Não perturbe" | o canal só fura o modo silencioso com esse acesso | configurações do sistema |
+| Tela cheia (Android 14+) | acender a tela bloqueada e abrir o alarme | configurações do app |
+| Sem restrição de bateria | o fabricante não pausa a conexão | diálogo do sistema |
+
+**Testar o alarme** dispara um alarme local, sem servidor, com o mesmo canal e a mesma tela cheia. O volume
+do alarme é o do sistema (stream de alarme): o app não mexe nele; deixe-o alto.
 
 ## Compilar
 
@@ -83,4 +98,6 @@ na lista de recentes. Veja https://dontkillmyapp.com para o seu modelo.
   então repetir o mesmo comando parece mensagem nova para o servidor (a hora entra na assinatura). O
   WhatsApp real mantém a hora; a deduplicação está provada nos testes e2e da API.
 - A entrega é por conexão aberta (SSE, D8): se o fabricante matar o serviço em segundo plano, o aviso só
-  chega quando o app voltar. O alarme alto e o furo do modo silencioso são a R3; o FCM é a R5.
+  chega quando o app voltar. O FCM (R5) resolve isso.
+- **O alarme só foi visto no emulador** (canal, `INSISTENT`, tela cheia, "Vi"). Som real, vibração, "Não
+  perturbe" ligado e tela bloqueada com PIN dependem de um celular de verdade: confira antes de confiar.

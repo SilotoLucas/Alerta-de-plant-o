@@ -1,9 +1,8 @@
 # ARQUITETURA
 
-> Status: **R2 (app Android único) entregue em 2026-11-14**, sobre a R1 (API e banco) e a R0 (monorepo e
-> gate). `apps/api`, `packages/{application,contracts,infra}`, `tools/db` e o app falam entre si e
-> passam no gate. O alarme (R3) e o deploy na VM (R4) estão **planejados**, marcados como `[R3]`…, e
-> só começam com o OK do dono em [plano-produto.md](plano-produto.md). Decisões com motivo em
+> Status: **R3 (alarme no celular pessoal) entregue em 2026-11-14**, sobre a R2 (app Android único), a R1
+> (API e banco) e a R0 (monorepo e gate). O deploy na VM (R4) está **planejado**, marcado como `[R4]`, e só
+> começa com o OK do dono em [plano-produto.md](plano-produto.md). Decisões com motivo em
 > [decisoes.md](decisoes.md); o contrato HTTP em [api.md](api.md); as tabelas em
 > [banco-de-dados.md](banco-de-dados.md).
 
@@ -73,7 +72,7 @@ Sem URL, sem token, sem tópico. Detalhes e fases em [plano-produto.md](plano-pr
 |---|---|---|
 | `packages/domain` | pronto: aviso, comando, assinatura, aparelho, pareamento, evento | — |
 | `apps/api` + Postgres | **pronto (R1)**: pareamento, evento, deduplicação, plantão, "Vi", SSE | `[R4]` no ar na VM |
-| `apps/android` | **pronto (R2)**: app único, pareamento, fala com a API; testado só no emulador | `[R3]` alarme alto e "Vi" reforçado |
+| `apps/android` | **pronto (R2 e R3)**: app único, pareamento, alarme com tela cheia e "Vi"; testado só no emulador | conferência em celular real |
 | `deploy/ntfy` | provisório, **o app não usa mais** | `[R4]` sai; entra o deploy da API na borda da VM |
 | `apps/windows` | funciona (revisado, nunca executado no Linux) | sem mudança planejada |
 
