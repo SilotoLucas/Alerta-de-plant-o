@@ -1,0 +1,4 @@
+# configuracao local gerada pelo programa na primeira execucao
+config.json
+*.log
+*.tmp*
