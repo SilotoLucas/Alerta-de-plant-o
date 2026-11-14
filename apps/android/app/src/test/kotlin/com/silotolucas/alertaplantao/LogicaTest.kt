@@ -198,3 +198,54 @@ class HistoricoTest {
         assertEquals("Nova mensagem", Historico.emUmaLinha("Nova mensagem"))
     }
 }
+
+class AparenciaTest {
+
+    @Test
+    fun `iniciais pegam a primeira letra das duas primeiras palavras`() {
+        assertEquals("GS", Avatar.iniciais("Grupo Suporte"))
+        assertEquals("AB", Avatar.iniciais("ana-bia cruz"))
+        assertEquals("M", Avatar.iniciais("maria"))
+        assertEquals("2T", Avatar.iniciais("2 Turno"))
+    }
+
+    @Test
+    fun `sem letra nem numero o avatar mostra interrogacao`() {
+        assertEquals("?", Avatar.iniciais(""))
+        assertEquals("?", Avatar.iniciais(" - | "))
+    }
+
+    @Test
+    fun `a cor do avatar e sempre da paleta e estavel para o mesmo nome`() {
+        for (nome in listOf("", "Grupo Suporte", "Cliente Ω", "x".repeat(500))) {
+            assertTrue(Avatar.cor(nome) in Avatar.PALETA)
+            assertEquals(Avatar.cor(nome), Avatar.cor(nome))
+        }
+    }
+
+    @Test
+    fun `linhas do aviso separam remetente, fala e o resto`() {
+        val linhas = LinhasDoAviso.ler("Ana: oi, tudo bem?\nso uma fala\nBruno: link http://x.com: ok\n+ 4 mensagens")
+        assertEquals(
+            listOf(
+                LinhaDoAviso.Fala("Ana", "oi, tudo bem?"),
+                LinhaDoAviso.Fala(null, "so uma fala"),
+                LinhaDoAviso.Fala("Bruno", "link http://x.com: ok"),
+                LinhaDoAviso.Resto(4),
+            ),
+            linhas,
+        )
+    }
+
+    @Test
+    fun `dois pontos muito longe do comeco nao viram remetente`() {
+        val texto = "Esta frase comprida demais para ser um nome: continua"
+        assertEquals(listOf(LinhaDoAviso.Fala(null, texto)), LinhasDoAviso.ler(texto))
+    }
+
+    @Test
+    fun `texto vazio nao gera balao e um resto no singular tambem e entendido`() {
+        assertTrue(LinhasDoAviso.ler("").isEmpty())
+        assertEquals(listOf(LinhaDoAviso.Resto(1)), LinhasDoAviso.ler("+ 1 mensagem"))
+    }
+}

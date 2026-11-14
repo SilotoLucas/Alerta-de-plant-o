@@ -3,7 +3,7 @@
     <string name="app_name">Alerta de Plantão</string>
 
     <string name="parear_ajuda">Digite o código de 6 dígitos que o administrador gerou para este celular. É só isso.</string>
-    <string name="hint_codigo">Código de pareamento</string>
+    <string name="hint_codigo">Código</string>
     <string name="hint_nome">Nome deste celular</string>
     <string name="hint_servidor">Endereço do servidor</string>
     <string name="parear">Parear</string>
@@ -39,6 +39,14 @@
     <string name="nenhum_aviso">Nenhum aviso recebido ainda.</string>
     <string name="ultimos_avisos">Últimos avisos</string>
     <string name="vi">Vi</string>
+    <string name="rotulo_whatsapp">WHATSAPP  •  PLANTÃO</string>
+    <string name="rotulo_cabecalho">WHATSAPP  •  PLANTÃO  •  %1$s</string>
+    <string name="rotulo_subtexto">PLANTÃO</string>
+    <string name="rotulo_situacao">SITUAÇÃO</string>
+    <string name="rotulo_alarme">ALARME</string>
+    <string name="alarme_dica">O alarme toca até você tocar em Vi</string>
+    <string name="mais_mensagens">+ %1$d mensagens</string>
+    <string name="aviso_sem_texto">Chegou mensagem no WhatsApp da empresa.</string>
 
     <string name="alarme_titulo_secao">Alarme</string>
     <string name="alarme_ok">✔ Alarme pronto: som, “Não perturbe” e tela cheia liberados</string>

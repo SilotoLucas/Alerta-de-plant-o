@@ -11,7 +11,9 @@ import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 import android.view.View
+import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusPessoal: TextView
     private lateinit var chavePlantao: SwitchCompat
     private lateinit var statusAlarme: TextView
-    private lateinit var listaAvisos: TextView
+    private lateinit var listaAvisos: LinearLayout
     private lateinit var botoesDoAlarme: Map<Pendencia, View>
     private val handler = Handler(Looper.getMainLooper())
     private val fundo = Executors.newSingleThreadExecutor()
@@ -280,8 +282,24 @@ class MainActivity : AppCompatActivity() {
             ).joinToString("\n")
             val avisos = Historico.ler(cfg.historico)
             val formato = DateFormat.getTimeInstance(DateFormat.SHORT)
-            listaAvisos.text = if (avisos.isEmpty()) getString(R.string.nenhum_aviso)
-            else avisos.joinToString("\n\n") { "${formato.format(Date(it.hora))}  ${it.titulo}\n${it.texto}" }
+            listaAvisos.removeAllViews()
+            if (avisos.isEmpty()) {
+                listaAvisos.addView(
+                    TextView(this).apply {
+                        text = getString(R.string.nenhum_aviso)
+                        setTextColor(getColor(R.color.texto_suave))
+                        setPadding(0, 24, 0, 24)
+                    },
+                )
+            }
+            for (aviso in avisos) {
+                val item = LayoutInflater.from(this).inflate(R.layout.item_aviso, listaAvisos, false)
+                item.findViewById<AvatarView>(R.id.aviso_avatar).definir(aviso.titulo)
+                item.findViewById<TextView>(R.id.aviso_titulo).text = aviso.titulo
+                item.findViewById<TextView>(R.id.aviso_hora).text = formato.format(Date(aviso.hora))
+                item.findViewById<TextView>(R.id.aviso_texto).text = Historico.emUmaLinha(aviso.texto)
+                listaAvisos.addView(item)
+            }
             val pendencias = Preparo.pendencias(Alarme.situacao(this))
             statusAlarme.text = if (pendencias.isEmpty()) getString(R.string.alarme_ok)
             else pendencias.joinToString("\n") { getString(textoDaPendencia(it)) }

@@ -142,3 +142,11 @@ parte crítica do produto).
 **D13. O alerta do Windows continua em PowerShell e independente do servidor.** *Decidida.*
 Motivo: roda sem instalar nada e sem administrador; reescrever perderia isso. Lição: o Defender
 marcou como trojan um autoteste que tirava print da tela; nunca colocar captura de tela.
+
+**D23. O app Android segue o visual do alerta do Windows.** *Decidida.*
+Motivo: o dono achou o app feio e quer o mesmo padrão do alerta local. Mesma paleta escura (fundo
+`#111B21`, cartão `#202C33`, verde `#25D366`), avatar redondo com iniciais e cor sorteada pelo nome da
+conversa, cabeçalho "WHATSAPP • PLANTÃO • hora", balões por remetente, botão "Vi" em pílula e brilho verde
+pulsando nas bordas da tela cheia (`BrilhoView`). A notificação leva o avatar como ícone grande e o verde
+como cor de destaque. O tema é sempre escuro, também no celular em modo claro. A separação das falas lê o
+texto do aviso (`LinhasDoAviso`), sem mudar o contrato com a API.

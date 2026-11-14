@@ -45,6 +45,7 @@ object Alarme {
     fun tocar(context: Context, aviso: AvisoRecebido) {
         prepararCanal(context)
         val idNotificacao = aviso.id.hashCode()
+        val agora = System.currentTimeMillis()
         val vi = PendingIntent.getBroadcast(
             context, idNotificacao,
             Intent(context, VistoReceiver::class.java)
@@ -58,11 +59,18 @@ object Alarme {
                 .putExtra(VistoReceiver.EXTRA_AVISO_ID, aviso.id)
                 .putExtra(AlarmeActivity.EXTRA_TITULO, aviso.titulo)
                 .putExtra(AlarmeActivity.EXTRA_TEXTO, aviso.texto)
+                .putExtra(AlarmeActivity.EXTRA_HORA, agora)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         val notificacao = NotificationCompat.Builder(context, CANAL)
             .setSmallIcon(R.drawable.ic_sino)
+            .setColor(context.getColor(R.color.acento))
+            .setColorized(false)
+            .setLargeIcon(AvatarView.imagem(aviso.titulo, (context.resources.displayMetrics.density * 64).toInt()))
+            .setSubText(context.getString(R.string.rotulo_subtexto))
+            .setWhen(agora)
+            .setShowWhen(true)
             .setContentTitle(aviso.titulo)
             .setContentText(Historico.emUmaLinha(aviso.texto))
             .setStyle(NotificationCompat.BigTextStyle().bigText(aviso.texto))

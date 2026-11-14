@@ -1,12 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="verde">#25D366</color>
-    <color name="verde_escuro">#128C7E</color>
-    <color name="alarme_fundo">#B71C1C</color>
-    <color name="alarme_texto">#FFFFFF</color>
+    <!-- Mesma paleta do alerta do Windows (apps/windows/Banner.cs). -->
+    <color name="fundo">#111B21</color>
+    <color name="superficie">#202C33</color>
+    <color name="superficie_alta">#2A3942</color>
+    <color name="linha">#2C3A42</color>
+    <color name="acento">#25D366</color>
+    <color name="acento_suave">#4ADE80</color>
+    <color name="texto">#E9EDEF</color>
+    <color name="texto_suave">#A0ACB2</color>
+    <color name="texto_mudo">#6E7D84</color>
+    <color name="erro">#EF5350</color>
 
-    <style name="Theme.AlertaPlantao" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/verde_escuro</item>
+    <style name="Theme.AlertaPlantao" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/acento</item>
+        <item name="colorOnPrimary">@color/fundo</item>
+        <item name="colorSecondaryContainer">@color/superficie_alta</item>
+        <item name="colorOnSecondaryContainer">@color/texto</item>
+        <item name="android:colorBackground">@color/fundo</item>
+        <item name="colorSurface">@color/superficie</item>
+        <item name="colorOnSurface">@color/texto</item>
+        <item name="colorOnSurfaceVariant">@color/texto_suave</item>
+        <item name="colorOutline">@color/texto_mudo</item>
+        <item name="colorOutlineVariant">@color/linha</item>
+        <item name="colorError">@color/erro</item>
+        <item name="colorControlActivated">@color/acento</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/fundo</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="materialButtonStyle">@style/Botao.Primario</item>
+    </style>
+
+    <style name="Botao.Primario" parent="Widget.Material3.Button">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Botao.Suave" parent="Widget.Material3.Button.TonalButton">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Botao.Contorno" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="strokeColor">@color/texto_mudo</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <style name="Botao.Texto" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <!-- Rotulo pequeno em verde, como "WHATSAPP • PLANTÃO" do alerta do Windows. -->
+    <style name="Rotulo">
+        <item name="android:textColor">@color/acento</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="Titulo">
+        <item name="android:textColor">@color/texto</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="Corpo">
+        <item name="android:textColor">@color/texto_suave</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
     </style>
 </resources>

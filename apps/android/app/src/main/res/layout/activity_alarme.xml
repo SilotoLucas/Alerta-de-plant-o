@@ -1,53 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/alarme_fundo"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:background="@drawable/fundo_degrade">
 
-    <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_sino"
-        app:tint="@color/alarme_texto"
-        xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-    <TextView
-        android:id="@+id/alarme_titulo"
+    <com.silotolucas.alertaplantao.BrilhoView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:textColor="@color/alarme_texto"
-        android:textSize="32sp"
-        android:textStyle="bold" />
+        android:layout_height="match_parent" />
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/alarme_raiz"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1"
-        android:fillViewport="false">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="28dp"
+        android:paddingTop="24dp"
+        android:paddingRight="28dp"
+        android:paddingBottom="24dp">
 
         <TextView
-            android:id="@+id/alarme_texto"
+            android:id="@+id/alarme_cabecalho"
+            style="@style/Rotulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="@color/alarme_texto"
-            android:textSize="22sp" />
-    </ScrollView>
+            android:layout_marginTop="12dp" />
 
-    <Button
-        android:id="@+id/botao_vi"
-        android:layout_width="match_parent"
-        android:layout_height="96dp"
-        android:layout_marginTop="48dp"
-        android:backgroundTint="@color/alarme_texto"
-        android:text="@string/vi"
-        android:textColor="@color/alarme_fundo"
-        android:textSize="32sp" />
-</LinearLayout>
+        <com.silotolucas.alertaplantao.AvatarView
+            android:id="@+id/alarme_avatar"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/alarme_titulo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textColor="@color/texto"
+            android:textSize="28sp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1"
+            android:overScrollMode="ifContentScrolls"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/alarme_mensagens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
+        <Button
+            android:id="@+id/botao_vi"
+            style="@style/Botao.Primario"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/vi"
+            android:textSize="24sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/alarme_dica"
+            android:textColor="@color/texto_mudo"
+            android:textSize="12sp" />
+    </LinearLayout>
+</FrameLayout>
