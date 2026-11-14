@@ -10,10 +10,11 @@ infraestrutura, pastas, matriz de importação, portas), [docs/decisoes.md](docs
 não reabra sem motivo novo), [docs/plano-produto.md](docs/plano-produto.md) (fluxo, fases R0–R5) e
 [docs/historico-fases-1-e-2.md](docs/historico-fases-1-e-2.md) (lições das duas primeiras fases).
 
-Estado: **R1 pronta** (API com pareamento por código, evento com deduplicação, plantão por aparelho
-pessoal, "Vi" e entrega por SSE; Postgres; gate verde). O app Android e o alerta do Windows seguem como
-antes; o Android ainda fala com um ntfy provisório e só muda na **R2**, que **só começa depois do OK do
-dono**. Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
+Estado: **R2 pronta** (R1: API com pareamento por código, evento com deduplicação, plantão por aparelho
+pessoal, "Vi" e entrega por SSE, Postgres; R2: app Android único com modo Empresa e Pessoal falando com
+a API, testado no emulador com notificação simulada). O alerta do Windows segue como antes. O ntfy
+(`deploy/ntfy`) não é mais usado e sai na R4. A **R3** (alarme) **só começa depois do OK do dono**.
+Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
 
 ## Comandos
 
@@ -144,7 +145,7 @@ Abanou. As deste projeto:
 7. **Android 15 (targetSdk 35) desenha de borda a borda:** aplique as margens do sistema na tela ou o
    título fica embaixo da barra de status.
 8. **`BOOT_COMPLETED` só inicia serviço em primeiro plano do tipo `specialUse`** (não `dataSync`) no
-   Android 15; o `ComandoService` declara `specialUse` com a justificativa no manifest.
+   Android 15; o `AvisoService` declara `specialUse` com a justificativa no manifest.
 9. **O build `debug` aceita `http://` e `com.android.shell`.** Só para teste; o `release` não.
 10. **`pkill -f` e `pgrep -f` com um padrão que aparece na própria linha de comando casam com o shell
     que roda o comando e o matam** (exit 144). Mate processo pelo PID, obtido em uma chamada separada.
@@ -162,3 +163,9 @@ Abanou. As deste projeto:
     batimento a cada 20 s. Teste de stream lê com limite de tempo (`lerAte` em `avisos.e2e.test.ts`).
 17. **Os e2e usam o banco `plantao_teste`, que é apagado a cada arquivo.** Nunca aponte
     `DATABASE_URL_TESTE` para outro banco (a infra recusa nome sem `_teste`).
+18. **`cmd notification post` grava hora nova a cada chamada:** repetir o mesmo comando no emulador cria
+    "mensagem nova" para o servidor (a hora entra na assinatura, lição 1). É artefato do simulador; a
+    deduplicação está nos e2e da API. A linha de base silenciosa (`silencioso=true` na primeira conexão do
+    listener) se testa zerando `inicializado` em `shared_prefs/config.xml` e religando o listener.
+19. **WorkManager limita `Data` a 10 KB:** o evento vai com as últimas 8 mensagens × 200 caracteres
+    (`Protocolo`). Mudou o limite, rode `LogicaTest`.

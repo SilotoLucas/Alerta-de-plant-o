@@ -29,7 +29,7 @@ Três toques e um código por celular, sem URL, token, tópico nem segundo app.
 |---|---|---|---|
 | **R0** | Estrutura no padrão do Bússola/Abanou: monorepo, gate verde, docs, `packages/domain`, apps reorganizados | `bun run validate` verde; apps antigos seguem funcionando | **entregue** |
 | **R1** | `apps/api` (Elysia) + Postgres + `application`/`infra`/`contracts`: pareamento, receber evento, deduplicar, plantão ligado/desligado, "Vi", entrega por SSE | testes unit e e2e verdes; rotas todas em e2e; testado com `curl` | **entregue** ([api.md](api.md)) |
-| **R2** | `apps/android` simplificado: um app, dois modos, pareamento por código, fala com a API, sem estado local | testado no emulador com notificação simulada, ida e volta completa | planejada |
+| **R2** | `apps/android` simplificado: um app, dois modos, pareamento por código, fala com a API, sem estado local | testado no emulador com notificação simulada, ida e volta completa | **entregue** (app em [`apps/android`](../apps/android/README.md)) |
 | **R3** | Acabamento do alerta no celular pessoal: som alto, fura o modo silencioso, botão "Vi", tela cheia opcional | conferido em celular real | planejada |
 | **R4** | Deploy da API na borda da VM (Caddy, timer de deploy, `.env`), `deploy/ntfy` removido, APK assinado, guia para os consultores | funcionando na VM com https, com WhatsApp real | planejada |
 | **R5 (opcional)** | FCM como segundo adaptador de entrega | alerta chega com o celular pessoal parado por horas | opcional |
@@ -40,7 +40,7 @@ próxima; só avanço com o seu OK ao fim de cada uma.
 ## O que eu preciso de você
 
 - **Resolvido:** D7 a D10 aprovadas; o celular pessoal é Android.
-- **R2:** nada além de ver o app no emulador; o servidor local é `bun run db:up` + `bun run dev:api`.
+- **R3:** conferir o alarme num celular pessoal real (som, modo silencioso, tela bloqueada).
 - **R4:** rodar na VM os comandos que eu passar (acesso SSH é seu); informar o domínio ou subdomínio.
 - **Teste real:** um celular com o WhatsApp da empresa para conferir grupos e várias mensagens
   seguidas. É o que falta validar desde a Fase 2.

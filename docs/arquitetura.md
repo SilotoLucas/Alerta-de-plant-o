@@ -1,8 +1,8 @@
 # ARQUITETURA
 
-> Status: **R1 (API e banco) entregue em 2026-11-14**, sobre a R0 (monorepo e gate). `apps/api`,
-> `packages/{application,contracts,infra}` e `tools/db` existem e passam no gate. O app Android
-> simplificado e o alarme (R2, R3) e o deploy na VM (R4) estão **planejados**, marcados como `[R2]`…, e
+> Status: **R2 (app Android único) entregue em 2026-11-14**, sobre a R1 (API e banco) e a R0 (monorepo e
+> gate). `apps/api`, `packages/{application,contracts,infra}`, `tools/db` e o app falam entre si e
+> passam no gate. O alarme (R3) e o deploy na VM (R4) estão **planejados**, marcados como `[R3]`…, e
 > só começam com o OK do dono em [plano-produto.md](plano-produto.md). Decisões com motivo em
 > [decisoes.md](decisoes.md); o contrato HTTP em [api.md](api.md); as tabelas em
 > [banco-de-dados.md](banco-de-dados.md).
@@ -57,8 +57,8 @@ Quem decide o quê:
 
 ### Como você configura (o que muda no uso)
 
-Hoje são muitas etapas: servidor ntfy, usuário, token, tópico, app ntfy no pessoal e três campos no
-app. O plano troca isso por **um app só** e um **código de pareamento**:
+Antes eram muitas etapas: servidor ntfy, usuário, token, tópico, app ntfy no pessoal e três campos no
+app. A R2 trocou isso por **um app só** e um **código de pareamento**:
 
 1. Você abre a página do servidor (ou roda um comando) e ele mostra um código de 6 dígitos.
 2. No celular da empresa: instala o app, escolhe "Celular da empresa", digita o código e libera o
@@ -73,8 +73,8 @@ Sem URL, sem token, sem tópico. Detalhes e fases em [plano-produto.md](plano-pr
 |---|---|---|
 | `packages/domain` | pronto: aviso, comando, assinatura, aparelho, pareamento, evento | — |
 | `apps/api` + Postgres | **pronto (R1)**: pareamento, evento, deduplicação, plantão, "Vi", SSE | `[R4]` no ar na VM |
-| `apps/android` | funciona, mas fala com um servidor **ntfy** (provisório) | `[R2]` app único, pareamento, fala com a API |
-| `deploy/ntfy` | provisório, ainda é o que o app usa | `[R4]` sai; entra o deploy da API na borda da VM |
+| `apps/android` | **pronto (R2)**: app único, pareamento, fala com a API; testado só no emulador | `[R3]` alarme alto e "Vi" reforçado |
+| `deploy/ntfy` | provisório, **o app não usa mais** | `[R4]` sai; entra o deploy da API na borda da VM |
 | `apps/windows` | funciona (revisado, nunca executado no Linux) | sem mudança planejada |
 
 ---
