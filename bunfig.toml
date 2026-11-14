@@ -1,0 +1,6 @@
+[install]
+exact = true
+saveTextLockfile = true
+
+[test]
+pathIgnorePatterns = ["tools/quality/fixtures/**", "tools/quality/.fixtures-em-uso/**"]

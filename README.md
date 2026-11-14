@@ -1,74 +1,41 @@
-# Alerta de Plantão (WhatsApp)
+# Alerta de Plantão
 
-Mostra um alerta no topo da tela, com um aviso sonoro suave, sempre que chega mensagem no
-WhatsApp Desktop do computador. Serve para não perder chamado de cliente enquanto você está
-focado em outra coisa.
+Quando um cliente chama no WhatsApp do celular da empresa, o consultor de plantão é avisado: na tela
+do computador e no celular pessoal, mesmo longe do celular da empresa.
 
-## No celular, quando você sai do plantão
+```
+celular da empresa ──► servidor (VM) ──► celular pessoal
+(app lê a notificação)   (repassa o aviso)   (toca o alarme, botão "Vi")
+```
 
-Além do alerta no computador, há um **app Android** (pasta [`android/`](android/README.md)) para o
-celular da empresa: ele lê as notificações do WhatsApp e avisa o seu **celular pessoal**, pelo seu
-próprio servidor ntfy (pasta [`servidor/`](servidor/README.md)). Dá para ligar e desligar pelo app,
-por um botão nas configurações rápidas ou mandando `sai` / `voltei` do celular pessoal.
+O servidor só repassa um aviso curto; ele não acessa o WhatsApp. Como cada peça funciona:
+[docs/arquitetura.md](docs/arquitetura.md).
 
-## Requisitos (alerta no computador)
+## O que tem aqui
 
-- Windows 10 ou 11
-- **WhatsApp Desktop** (o da Microsoft Store) aberto e conectado. Pode ficar minimizado.
-- Notificações do WhatsApp **ligadas** (no WhatsApp: Configurações > Notificações, e no Windows:
-  Configurações > Sistema > Notificações > WhatsApp)
-
-Não precisa instalar mais nada nem ser administrador.
-
-## Instalar
-
-1. Copie a pasta inteira para o computador.
-2. Dê dois cliques em **Instalar.cmd**.
-3. Vai aparecer um **sino verde** na bandeja, perto do relógio. Se ele estiver escondido, clique na
-   setinha `^` e arraste o sino para a barra.
-
-O programa já fica configurado para abrir junto com o Windows.
-
-## Usar
-
-| Ação | Como |
-|---|---|
-| Ligar / desligar os alertas | Clique no sino (verde = ligado, cinza = desligado) |
-| Fechar um alerta | **Enter**, **Esc**, botão **OK**, ou clique no cartão |
-| Ver como fica | Botão direito no sino > **Testar alerta** |
-| Ver como fica com vários grupos | Botão direito no sino > **Simular várias conversas** |
-| Não abrir com o Windows | Botão direito > desmarque **Iniciar com o Windows** |
-| Ajustar volume, repetição etc. | Botão direito > **Configurações...** (depois Sair e abrir de novo) |
-| Ver o histórico | Botão direito > **Abrir registro** |
-
-Enquanto há alerta sem confirmar, as bordas da tela brilham em verde, o sino fica **laranja** e o
-som se repete a cada 30 segundos.
-
-Se chegarem mensagens de vários grupos ou contatos, o cartão vira uma lista: uma linha por conversa,
-com a quantidade de mensagens de cada uma e a mais recente no topo.
-
-## Configurações (`config.json`)
-
-| Chave | Padrão | O que faz |
+| Pasta | O que é | Estado |
 |---|---|---|
-| `Volume` | `0.25` | Volume do aviso (0.0 a 1.0) |
-| `RepetirSomSeg` | `30` | Repete o som a cada N segundos até confirmar (`0` = toca uma vez) |
-| `SomArquivo` | vazio | Caminho de um `.wav` próprio, se quiser outro som |
-| `LarguraCartao` | `460` | Largura do cartão de alerta |
-| `PegarFoco` | `true` | Traz o cartão para frente para Enter/Esc funcionarem. Use `false` se atrapalhar quando estiver digitando |
-| `Brilho` | `true` | Brilho verde nas bordas da tela enquanto houver alerta |
-| `IntervaloMs` | `1500` | De quanto em quanto tempo verifica as notificações |
+| [`apps/windows`](apps/windows/README.md) | Alerta no computador: cartão no topo, brilho nas bordas e som, para quem usa o WhatsApp Desktop | funciona |
+| [`apps/android`](apps/android/README.md) | App do celular da empresa (lê o WhatsApp e avisa o celular pessoal) | funciona, fala com um ntfy provisório |
+| `apps/api` | Servidor próprio na VM (pareamento, deduplicação, plantão ligado/desligado, entrega) | planejado (R1) |
+| [`packages/domain`](packages/domain) | Regras puras do plantão, testadas | pronto |
+| [`tools/quality`](tools/quality) | Gate de qualidade (`bun run validate`) | pronto |
+| [`deploy/ntfy`](deploy/ntfy/README.md) | Servidor ntfy usado hoje pelo app Android | provisório |
+| [`docs`](docs) | Arquitetura, decisões, plano e histórico | atualizado |
 
-## Quando o alerta NÃO dispara
+## Começar
 
-O programa reage às notificações que o WhatsApp manda para o Windows. Se o WhatsApp não mandar
-notificação, não há alerta. Isso acontece quando:
+```bash
+bun install               # instala as ferramentas e os hooks do git
+bun run validate          # gate completo (menos de 10 s hoje)
+```
 
-- a janela do WhatsApp está aberta e em primeiro plano (você já está olhando);
-- a mensagem foi lida antes em outro aparelho (celular);
-- a conversa ou o grupo está silenciado;
-- as notificações do WhatsApp estão desligadas no WhatsApp ou no Windows.
+- **Instalar o alerta no Windows:** copie `apps/windows` para o PC e dê dois cliques em `Instalar.cmd`.
+- **Compilar o app Android:** [apps/android/README.md](apps/android/README.md).
+- **Próximos passos do projeto:** [docs/plano-produto.md](docs/plano-produto.md).
 
-## Desinstalar
+## Para quem desenvolve
 
-Dois cliques em **Desinstalar.cmd**.
+Mesma metodologia do Abanou e do Bússola: camadas com regra de importação imposta por ferramenta,
+gate rápido e completo, testes `unit` e `e2e`, documentação no próprio repositório. Comece pelo
+[AGENTS.md](AGENTS.md).

@@ -1,0 +1,12 @@
+[
+  {
+    "arquivo": "packages/domain/src/pet.ts",
+    "trecho": "motivo-registrado",
+    "motivo": "contrato da API externa"
+  },
+  {
+    "arquivo": "packages/domain/src/sumiu.ts",
+    "trecho": "qualquer",
+    "motivo": "entrada que não casa mais"
+  }
+]

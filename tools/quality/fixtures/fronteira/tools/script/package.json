@@ -1,0 +1,6 @@
+{
+  "name": "tools-script",
+  "private": true,
+  "type": "module",
+  "dependencies": {}
+}

@@ -1,0 +1,6 @@
+{
+  "name": "apps-web",
+  "private": true,
+  "type": "module",
+  "dependencies": {}
+}

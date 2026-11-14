@@ -1,0 +1,115 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/.next",
+      "!**/.expo",
+      "!**/generated",
+      "!**/tools/quality/fixtures",
+      "!**/*.svg",
+      "!docs/design"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 15
+          }
+        },
+        "useLiteralKeys": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsole": "error"
+      },
+      "style": {
+        "noNonNullAssertion": "error",
+        "useConst": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "double",
+      "semicolons": "asNeeded",
+      "trailingCommas": "all"
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "packages/domain/src/**",
+        "packages/application/src/**",
+        "packages/apresentacao/src/**",
+        "!**/*.test.ts",
+        "!**/fakes.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "Date": "Domínio e aplicação não leem o relógio. Receba Instante como valor ou use a porta Relogio.",
+                  "fetch": "Domínio e aplicação não fazem I/O. Declare uma porta no contexto consumidor e implemente em packages/infra.",
+                  "process": "Domínio e aplicação não leem ambiente. Leia em apps/api/src/composicao e passe o valor validado.",
+                  "crypto": "Domínio e aplicação não geram aleatório nem hash. Use as portas GeradorDeId e HashDeSenha.",
+                  "setTimeout": "Domínio e aplicação não agendam nada. Tempo entra como Instante.",
+                  "setInterval": "Domínio e aplicação não agendam nada. Tempo entra como Instante.",
+                  "localStorage": "Domínio e aplicação não guardam estado. Use uma porta.",
+                  "Bun": "Domínio e aplicação não conhecem o runtime. Use uma porta implementada em packages/infra."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "apps/web/src/**",
+        "apps/mobile/app/**",
+        "apps/mobile/src/**",
+        "packages/api-client/src/**",
+        "!packages/api-client/src/transporte.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedGlobals": {
+              "level": "error",
+              "options": {
+                "deniedGlobals": {
+                  "fetch": "O front fala com a API só pelo @plantao/api-client. O único fetch do front mora em packages/api-client/src/transporte.ts.",
+                  "localStorage": "O front não toca armazenamento direto. Use a porta ArmazenamentoDeSessao do app.",
+                  "sessionStorage": "O front não toca armazenamento direto. Use a porta ArmazenamentoDeSessao do app."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

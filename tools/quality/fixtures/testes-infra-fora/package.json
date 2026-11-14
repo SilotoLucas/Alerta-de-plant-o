@@ -1,0 +1,8 @@
+{
+  "name": "fixture-infra-fora",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "infra:verificar": "echo banco fora do ar >&2 && exit 1"
+  }
+}

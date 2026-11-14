@@ -1,0 +1,33 @@
+# Servidor de avisos (ntfy) do Alerta de Plantao.
+# Uso: docker compose up -d   (veja README.md para criar usuario e token)
+services:
+  ntfy:
+    image: binwiederhier/ntfy:v2.11.0
+    container_name: alerta-ntfy
+    command: serve
+    restart: unless-stopped
+    environment:
+      TZ: America/Sao_Paulo
+      # O endereco publico (https) com que o app e o celular pessoal acessam o servidor.
+      NTFY_BASE_URL: ${NTFY_BASE_URL:?defina NTFY_BASE_URL no arquivo .env}
+      NTFY_AUTH_FILE: /var/lib/ntfy/user.db
+      # Nada e publico: so quem tem usuario/token le ou publica.
+      NTFY_AUTH_DEFAULT_ACCESS: deny-all
+      NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
+      # Guarda as mensagens por 12 h: se o celular pessoal ficar sem internet, recebe quando voltar.
+      NTFY_CACHE_DURATION: 12h
+      # Atras de proxy reverso (Caddy/nginx) que fala https.
+      NTFY_BEHIND_PROXY: "true"
+    volumes:
+      - ntfy-dados:/var/lib/ntfy
+    # So escuta em 127.0.0.1: o proxy reverso publica com https.
+    ports:
+      - "127.0.0.1:8089:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:80/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  ntfy-dados:

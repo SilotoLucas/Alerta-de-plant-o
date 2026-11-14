@@ -1,0 +1,6 @@
+{
+  "name": "packages-api-client",
+  "private": true,
+  "type": "module",
+  "dependencies": {}
+}

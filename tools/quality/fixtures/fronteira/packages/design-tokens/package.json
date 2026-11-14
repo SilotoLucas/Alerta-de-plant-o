@@ -1,0 +1,6 @@
+{
+  "name": "packages-design-tokens",
+  "private": true,
+  "type": "module",
+  "dependencies": {}
+}

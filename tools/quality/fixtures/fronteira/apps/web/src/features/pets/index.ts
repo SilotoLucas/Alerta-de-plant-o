@@ -1,0 +1,1 @@
+export { interno } from './interno'

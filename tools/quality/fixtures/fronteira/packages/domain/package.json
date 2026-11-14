@@ -1,0 +1,6 @@
+{
+  "name": "packages-domain",
+  "private": true,
+  "type": "module",
+  "dependencies": {}
+}

@@ -1,0 +1,8 @@
+{
+  "name": "packages-contracts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@sinclair/typebox": "0.34.52"
+  }
+}

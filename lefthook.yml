@@ -1,0 +1,23 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: segredo
+      run: gitleaks git --staged --redact --no-banner --config .gitleaks.toml
+      fail_text: 'Segredo no stage. Tire do arquivo e rotacione a credencial antes de qualquer coisa.'
+    - name: formato
+      glob: '*.{ts,tsx,js,cjs,json}'
+      run: bun x biome check --error-on-warnings --no-errors-on-unmatched {staged_files}
+    - name: gate-rapido
+      run: bun run validate:quick
+
+commit-msg:
+  jobs:
+    - name: formato-da-mensagem
+      run: >-
+        head -1 {1} | grep -qE '^(feat|fix|docs|chore|refactor|test|build|ci|perf|style)(\([a-z0-9-]+\))?!?: .+'
+      fail_text: 'Mensagem fora do formato "tipo: descrição" (tipos: feat fix docs chore refactor test build ci perf style).'
+
+pre-push:
+  jobs:
+    - name: gate-completo
+      run: bun run validate

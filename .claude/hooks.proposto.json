@@ -1,0 +1,40 @@
+{
+  "_": "PROPOSTA, NÃO INSTALADA. Instalar hook é decisão do dono: copie o conteúdo de \"hooks\" para .claude/settings.json quando quiser. Depende de jq (presente em /usr/bin/jq nesta máquina).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command // \"\"' | grep -qE '(^|[;&|[:space:]])(npm|npx|yarn|pnpm)([[:space:]]|$)|--no-verify|git add (-A|\\.|--all)' && { echo 'Bloqueado: só bun; nunca --no-verify; stage arquivo a arquivo (AGENTS.md, Nunca).' >&2; exit 2; } || exit 0",
+            "_motivo": "bloqueia gerenciador de pacote errado, pulo de hook e git add cego antes de rodarem"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // \"\"'); case \"$f\" in *.ts|*.tsx|*.json|*.cjs) bun x biome check --write --no-errors-on-unmatched \"$f\" >/dev/null 2>&1 ;; esac; exit 0",
+            "_motivo": "formata o arquivo tocado na hora, sem bloquear"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run validate:quick >/dev/null 2>&1 || { echo 'validate:quick reprovou; rode /gate antes de encerrar.' >&2; exit 2; }",
+            "_motivo": "o modo rápido (~2s), nunca o completo: 90s a cada fim de turno vira laço queimando CPU"
+          }
+        ]
+      }
+    ]
+  }
+}

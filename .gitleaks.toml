@@ -1,0 +1,27 @@
+title = "plantao"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "plantao-postgres-dsn"
+description = "DSN de Postgres com senha embutida"
+regex = '''postgres(ql)?://[a-zA-Z0-9_]+:[^@\s/]{3,}@'''
+tags = ["database", "credential"]
+
+  [rules.allowlist]
+  description = "Credencial do banco local de desenvolvimento (tools/db), sem valor fora da máquina."
+  regexTarget = "line"
+  regexes = ['''postgres://plantao:plantao@localhost:5435/plantao''']
+
+[allowlist]
+description = "Dependências, artefatos gerados e fixtures de teste do próprio gate."
+paths = [
+  '''(^|/)node_modules/''',
+  '''(^|/)\.reports/''',
+  '''(^|/)\.next/''',
+  '''(^|/)dist/''',
+  '''(^|/)tools/quality/(fixtures|\.fixtures-em-uso)/''',
+  '''(^|/)bun\.lock$''',
+  '''(^|/)docs/design/''',
+]

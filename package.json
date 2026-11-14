@@ -1,0 +1,41 @@
+{
+  "name": "alerta-de-plantao",
+  "private": true,
+  "type": "module",
+  "packageManager": "bun@1.4.0",
+  "engines": {
+    "bun": "1.4.0"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "tools/*"
+    ],
+    "catalog": {
+      "@types/bun": "1.4.0",
+      "typescript": "6.0.3"
+    }
+  },
+  "scripts": {
+    "validate": "bun tools/quality/src/validate.ts --mode full",
+    "validate:quick": "bun tools/quality/src/validate.ts --mode quick",
+    "typecheck": "tsc --build",
+    "format": "biome format --write .",
+    "test": "bun test",
+    "prepare": "lefthook install",
+    "deps": "depcruise --config .dependency-cruiser.cjs --output-type err packages apps tools",
+    "names": "ls-lint",
+    "dup": "jscpd --config .jscpd.json .",
+    "dead": "knip"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@ls-lint/ls-lint": "2.3.1",
+    "@types/bun": "catalog:",
+    "dependency-cruiser": "18.5.0",
+    "jscpd": "5.4.1",
+    "knip": "6.41.0",
+    "lefthook": "2.2.1",
+    "typescript": "catalog:"
+  }
+}

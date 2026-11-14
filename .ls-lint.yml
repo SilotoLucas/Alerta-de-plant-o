@@ -1,0 +1,34 @@
+ls:
+  packages/*/src:
+    .dir: kebab-case
+    .ts: kebab-case
+  apps/api/src:
+    .dir: kebab-case
+    .ts: kebab-case
+  apps/web/fluxos:
+    .ts: kebab-case | regex:^[a-z0-9-]+\.e2e\.test$
+  apps/web/src:
+    .dir: kebab-case | regex:^\[[a-z0-9-]+\]$ | regex:^\([a-z0-9-]+\)$
+    .ts: kebab-case
+    .tsx: kebab-case
+  apps/mobile/app:
+    .dir: kebab-case | regex:^\[[a-z0-9-]+\]$ | regex:^\([a-z0-9-]+\)$
+    .tsx: kebab-case | regex:^_layout$ | regex:^\+[a-z-]+$ | regex:^\[[a-z0-9-]+\]$
+  apps/mobile/src:
+    .dir: kebab-case
+    .ts: kebab-case
+    .tsx: kebab-case
+  tools/*/src:
+    .dir: kebab-case
+    .ts: kebab-case
+  packages/infra/src/db/migrations:
+    .sql: regex:^[0-9]{4}_[a-z0-9_]+$
+
+ignore:
+  - node_modules
+  - .git
+  - tools/quality/fixtures
+  - tools/quality/.fixtures-em-uso
+  - apps/android
+  - apps/windows
+  - deploy
