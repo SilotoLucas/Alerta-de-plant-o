@@ -4,7 +4,14 @@ Mostra um alerta no topo da tela, com um aviso sonoro suave, sempre que chega me
 WhatsApp Desktop do computador. Serve para não perder chamado de cliente enquanto você está
 focado em outra coisa.
 
-## Requisitos
+## No celular, quando você sai do plantão
+
+Além do alerta no computador, há um **app Android** (pasta [`android/`](android/README.md)) para o
+celular da empresa: ele lê as notificações do WhatsApp e avisa o seu **celular pessoal**, pelo seu
+próprio servidor ntfy (pasta [`servidor/`](servidor/README.md)). Dá para ligar e desligar pelo app,
+por um botão nas configurações rápidas ou mandando `sai` / `voltei` do celular pessoal.
+
+## Requisitos (alerta no computador)
 
 - Windows 10 ou 11
 - **WhatsApp Desktop** (o da Microsoft Store) aberto e conectado. Pode ficar minimizado.

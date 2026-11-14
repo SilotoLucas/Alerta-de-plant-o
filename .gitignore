@@ -3,3 +3,18 @@ config.json
 *.log
 *.tmp*
 config.json.*
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.iml
+.idea/
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# servidor
+servidor/.env

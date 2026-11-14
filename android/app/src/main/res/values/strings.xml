@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Alerta de Plantão</string>
+    <string name="subtitulo">Instale no celular da empresa. Avisa o seu celular pessoal quando chegar mensagem no WhatsApp.</string>
+
+    <string name="alertas_ativos">Alertas ativos</string>
+    <string name="enviar_texto">Enviar o texto das mensagens</string>
+    <string name="enviar_texto_ajuda">Desligado: o aviso mostra só o nome do grupo ou contato. Ligado: inclui o texto, que passa pelo seu servidor.</string>
+
+    <string name="secao_servidor">Servidor de avisos (ntfy)</string>
+    <string name="hint_url">Endereço do servidor (https://…)</string>
+    <string name="hint_topico">Tópico</string>
+    <string name="hint_token">Token de acesso</string>
+    <string name="salvar">Salvar</string>
+    <string name="enviar_teste">Enviar teste</string>
+    <string name="salvo">Configuração salva</string>
+    <string name="falta_servidor">Preencha o endereço do servidor e o tópico.</string>
+    <string name="teste_titulo">Teste do Alerta de Plantão</string>
+    <string name="teste_texto">Se você está lendo isto no celular pessoal, está funcionando.</string>
+    <string name="teste_enviado">Teste enviado</string>
+
+    <string name="secao_situacao">Situação</string>
+    <string name="status_acesso_ok">✔ Acesso às notificações liberado</string>
+    <string name="status_acesso_falta">✖ Falta liberar o acesso às notificações</string>
+    <string name="status_servidor_ok">✔ Servidor configurado</string>
+    <string name="status_servidor_falta">✖ Servidor não configurado</string>
+    <string name="status_bateria_ok">✔ Sem restrição de bateria</string>
+    <string name="status_bateria_falta">⚠ Bateria pode pausar o app: libere a restrição</string>
+    <string name="entrega_nenhuma">Nenhum aviso enviado ainda</string>
+    <string name="entrega_ok">✔ Último aviso entregue às %1$s</string>
+    <string name="entrega_falha">✖ Último aviso falhou (%1$s) às %2$s</string>
+    <string name="permitir_acesso">Liberar acesso às notificações</string>
+    <string name="liberar_bateria">Liberar restrição de bateria</string>
+    <string name="bateria_ja_livre">A bateria já está liberada para o app.</string>
+
+    <string name="ajuda_comandos">Do celular pessoal, publique no tópico “&lt;tópico&gt;-cmd”: “sai” liga os alertas, “voltei” desliga e “status” pergunta como está.</string>
+
+    <string name="canal_servico">Serviço do Alerta de Plantão</string>
+    <string name="servico_ativo">Alertas ativos</string>
+    <string name="servico_desativado">Alertas desativados</string>
+    <string name="tile_ativo">Ativo</string>
+    <string name="tile_desativado">Desativado</string>
+</resources>

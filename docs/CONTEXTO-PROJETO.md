@@ -73,7 +73,25 @@ Lições aprendidas (importantes também para o Android):
 7. Preferências do usuário confirmadas: estilo escuro do cartão, som "plim-plom", posição no topo,
    brilho verde nas bordas.
 
-## Fase 2 — Remoto (Android → celular pessoal): A FAZER
+## Fase 2 — Remoto (Android → celular pessoal): v2.0 IMPLEMENTADA, FALTA TESTE REAL
+
+Código em `android/` (Kotlin, sem Compose; AGP 8.12, Gradle 9.3.1, compileSdk 36, minSdk 26) e
+servidor em `servidor/` (ntfy via docker compose, `deny-all`). Veja `android/README.md`.
+
+Feito e **testado de ponta a ponta no emulador** com um ntfy local (aviso entregue, fila com
+servidor fora do ar, token, `deny-all`, comandos `sai`/`voltei`/`status`, 18 testes unitários):
+- Leitura por `NotificationListenerService` (WhatsApp + Business), deduplicação por hora+remetente+texto
+  persistida, resumo de grupo e notificações fixas ignorados.
+- Envio por WorkManager (JSON na raiz do ntfy, prioridade 5), tentativas a cada 30 s crescendo.
+- Liga/desliga: interruptor, Quick Settings Tile e comandos remotos (`<tópico>-cmd`).
+- Privacidade: por padrão só o nome da conversa; texto das mensagens é opcional.
+
+**Falta:** testar com o WhatsApp real no celular da empresa (a notificação simulada vem do
+`cmd notification post`), publicar o servidor no VPS/proxy com https, assinar o APK, conferir o
+comportamento de bateria por fabricante, e o app ntfy no celular pessoal com "ignorar não perturbe".
+Decisão em aberto: guardar o token com criptografia (hoje fica em SharedPreferences privado).
+
+Proposta original (mantida como referência):
 
 Arquitetura proposta:
 
