@@ -12,6 +12,10 @@ export {
   type DependenciasDeConfirmarVisto,
 } from './casos-de-uso/confirmar-visto/confirmar-visto.use-case'
 export {
+  type DependenciasDeLimparDadosAntigos,
+  limparDadosAntigos,
+} from './casos-de-uso/limpar-dados-antigos/limpar-dados-antigos.use-case'
+export {
   type DependenciasDeReceberEvento,
   type EntradaDeEvento,
   type ResumoDoEvento,
@@ -24,4 +28,6 @@ export type {
   RegistroDeMensagens,
   RepositorioDeAvisos,
   RepositorioDoPlantao,
+  ResumoDaLimpeza,
+  Retencao,
 } from './portas'

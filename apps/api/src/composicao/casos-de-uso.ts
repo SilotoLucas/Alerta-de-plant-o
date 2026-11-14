@@ -5,6 +5,7 @@ import {
   concluirPareamento,
   confirmarVisto,
   iniciarPareamento,
+  limparDadosAntigos,
   listarAparelhos,
   type Relogio,
   receberEvento,
@@ -18,6 +19,7 @@ import {
   repositorioDeAvisos,
   repositorioDePareamentos,
   repositorioDoPlantao,
+  retencaoDeDados,
   type Sql,
   segredosAleatorios,
 } from '@plantao/infra'
@@ -50,6 +52,11 @@ export const montarCasosDeUso = (sql: Sql, relogio: Relogio, config: Configuraca
     alterarPlantao: alterarPlantao({ plantao, relogio }),
     confirmarVisto: confirmarVisto({ avisos, relogio }),
     assinarAvisos: assinarAvisos({ avisos, notificador, relogio }),
+    limparDadosAntigos: limparDadosAntigos({
+      retencao: retencaoDeDados(sql),
+      relogio,
+      dias: config.retencaoEmDias,
+    }),
   }
 }
 

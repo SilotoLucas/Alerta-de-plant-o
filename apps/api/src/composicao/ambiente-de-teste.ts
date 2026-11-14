@@ -32,8 +32,9 @@ export const subirApiDeTeste = async (opcoes: OpcoesDaApiDeTeste = {}) => {
   const relogio = { atual: MEIO_DIA }
   const relogioDeTeste = { agora: (): Instante => relogio.atual }
   const config = configuracao.valor
+  const casosDeUso = montarCasosDeUso(banco.sql, relogioDeTeste, config)
   const app = criarApp(
-    montarCasosDeUso(banco.sql, relogioDeTeste, config),
+    casosDeUso,
     config.tokenDeAdmin,
     opcoes.limites ?? SEM_LIMITE,
     relogioDeTeste.agora,
@@ -72,6 +73,7 @@ export const subirApiDeTeste = async (opcoes: OpcoesDaApiDeTeste = {}) => {
   }
   return {
     baseUrl,
+    casosDeUso,
     sql: banco.sql,
     chamar,
     parear,

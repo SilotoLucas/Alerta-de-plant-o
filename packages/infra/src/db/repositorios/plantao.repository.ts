@@ -3,6 +3,7 @@ import type {
   RegistroDeMensagens,
   RepositorioDeAvisos,
   RepositorioDoPlantao,
+  Retencao,
 } from '@plantao/application'
 import {
   type AparelhoId,
@@ -100,4 +101,19 @@ export const repositorioDoPlantao = (sql: Sql): RepositorioDoPlantao => ({
     (await sql<{ id: string }[]>`select id from aparelhos where plantao_ativo order by id`).map(
       (linha) => linha.id as AparelhoId,
     ),
+})
+
+export const retencaoDeDados = (sql: Sql): Retencao => ({
+  apagarAnterioresA: async (limite) => {
+    const corte = new Date(limite)
+    const mensagens =
+      await sql`delete from mensagens_vistas where registrada_em < ${corte} returning 1`
+    const avisos = await sql`delete from avisos where criado_em < ${corte} returning 1`
+    const pareamentos = await sql`delete from pareamentos where expira_em < ${corte} returning 1`
+    return {
+      mensagens: mensagens.length,
+      avisos: avisos.length,
+      pareamentos: pareamentos.length,
+    }
+  },
 })

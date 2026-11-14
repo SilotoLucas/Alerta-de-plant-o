@@ -9,6 +9,7 @@ export {
   registroDeMensagens,
   repositorioDeAvisos,
   repositorioDoPlantao,
+  retencaoDeDados,
 } from './db/repositorios/plantao.repository'
 export { notificadorEmMemoria } from './entrega/notificador-em-memoria'
 export { segredosAleatorios } from './seguranca/segredos'

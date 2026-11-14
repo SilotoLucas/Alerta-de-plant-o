@@ -12,6 +12,7 @@ describe('lerConfiguracao', () => {
         bancoUrl: 'postgres://plantao:plantao@localhost:5435/plantao',
         tokenDeAdmin: TOKEN,
         enviarTexto: false,
+        retencaoEmDias: 7,
         limites: { geralPorMinuto: 300, pareamentoPorMinuto: 5, confiarNoProxy: false },
       },
     })
@@ -24,6 +25,7 @@ describe('lerConfiguracao', () => {
       DATABASE_URL: 'postgres://x@h/d',
       PLANTAO_ENVIAR_TEXTO: 'true',
       CONFIAR_NO_PROXY: 'true',
+      RETENCAO_EM_DIAS: '3',
       LIMITE_GERAL_POR_MINUTO: '10',
       LIMITE_DE_PAREAMENTO_POR_MINUTO: '2',
     })
@@ -33,6 +35,7 @@ describe('lerConfiguracao', () => {
         porta: 4000,
         bancoUrl: 'postgres://x@h/d',
         enviarTexto: true,
+        retencaoEmDias: 3,
         limites: { geralPorMinuto: 10, pareamentoPorMinuto: 2, confiarNoProxy: true },
       },
     })

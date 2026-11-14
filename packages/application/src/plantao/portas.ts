@@ -36,6 +36,16 @@ export interface RepositorioDoPlantao {
   readonly pessoaisEmPlantao: () => Promise<readonly AparelhoId[]>
 }
 
+export type ResumoDaLimpeza = {
+  readonly mensagens: number
+  readonly avisos: number
+  readonly pareamentos: number
+}
+
+export interface Retencao {
+  readonly apagarAnterioresA: (limite: Instante) => Promise<ResumoDaLimpeza>
+}
+
 export interface Notificador {
   readonly entregar: (aparelhoId: AparelhoId, aviso: AvisoRegistrado) => Promise<void>
   readonly assinar: (

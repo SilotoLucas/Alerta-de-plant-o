@@ -6,6 +6,7 @@ export type Configuracao = {
   readonly bancoUrl: string
   readonly tokenDeAdmin: string
   readonly enviarTexto: boolean
+  readonly retencaoEmDias: number
   readonly limites: ConfiguracaoDosLimites
 }
 
@@ -15,6 +16,7 @@ const PADROES = {
   API_PORT: '3350',
   DATABASE_URL: 'postgres://plantao:plantao@localhost:5435/plantao',
   PLANTAO_ENVIAR_TEXTO: 'false',
+  RETENCAO_EM_DIAS: '7',
   CONFIAR_NO_PROXY: 'false',
   LIMITE_GERAL_POR_MINUTO: '300',
   LIMITE_DE_PAREAMENTO_POR_MINUTO: '5',
@@ -67,6 +69,7 @@ export const lerConfiguracao = (ambiente: Ambiente): Result<Configuracao, readon
     10_000,
     problemas,
   )
+  const retencaoEmDias = inteiro(ambiente, 'RETENCAO_EM_DIAS', 1, 365, problemas)
   const enviarTexto = booleano(ambiente, 'PLANTAO_ENVIAR_TEXTO', problemas)
   const confiarNoProxy = booleano(ambiente, 'CONFIAR_NO_PROXY', problemas)
   if (problemas.length > 0) return err(problemas)
@@ -75,6 +78,7 @@ export const lerConfiguracao = (ambiente: Ambiente): Result<Configuracao, readon
     bancoUrl: ler(ambiente, 'DATABASE_URL'),
     tokenDeAdmin,
     enviarTexto,
+    retencaoEmDias,
     limites: { geralPorMinuto, pareamentoPorMinuto, confiarNoProxy },
   })
 }
