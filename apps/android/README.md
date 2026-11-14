@@ -84,6 +84,14 @@ como Pessoal e gere o evento da empresa com `curl` (`POST /eventos`).
    restrição de bateria**. Pessoal: ligue o interruptor de plantão.
 4. Opcional: arraste o botão **Alerta de Plantão** para as configurações rápidas.
 
+**Samsung (One UI 6+):** o **Bloqueador automático** (Configurações → Segurança e privacidade) impede
+instalar APK de fora da Play Store/Galaxy Store, mesmo com "instalar apps desconhecidos" liberado. Desligue-o
+para instalar (e ligue de novo depois). Abra o APK pelo Meus Arquivos ou pelo Chrome; se o Play Protect avisar
+"app não verificado", escolha "Instalar mesmo assim".
+
+**Android 13+, modo Empresa:** apps instalados fora da Play Store têm o "Acesso a notificações" bloqueado até
+você ir em Informações do app → ⋮ → **Permitir configurações restritas**. Sem isso a opção fica cinza.
+
 Em alguns aparelhos (Xiaomi, Samsung, Huawei…) é preciso permitir **início automático** e travar o app
 na lista de recentes. Veja https://dontkillmyapp.com para o seu modelo.
 
