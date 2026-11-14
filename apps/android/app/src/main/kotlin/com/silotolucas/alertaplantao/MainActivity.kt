@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusEmpresa: TextView
     private lateinit var statusPessoal: TextView
     private lateinit var chavePlantao: SwitchCompat
+    private lateinit var statusAlarme: TextView
+    private lateinit var botoesDoAlarme: Map<Pendencia, View>
     private val handler = Handler(Looper.getMainLooper())
     private val fundo = Executors.newSingleThreadExecutor()
     private var visivel = false
@@ -82,6 +84,13 @@ class MainActivity : AppCompatActivity() {
         statusEmpresa = findViewById(R.id.status_empresa)
         statusPessoal = findViewById(R.id.status_pessoal)
         chavePlantao = findViewById(R.id.chave_plantao)
+        statusAlarme = findViewById(R.id.status_alarme)
+        botoesDoAlarme = mapOf(
+            Pendencia.NOTIFICACOES to findViewById(R.id.botao_notificacoes),
+            Pendencia.NAO_PERTURBE to findViewById(R.id.botao_nao_perturbe),
+            Pendencia.TELA_CHEIA to findViewById(R.id.botao_tela_cheia),
+            Pendencia.BATERIA to findViewById(R.id.botao_bateria_pessoal),
+        )
 
         campoNome.setText(Build.MODEL)
         campoServidor.setText(cfg.servidor.ifEmpty { BuildConfig.SERVIDOR_PADRAO })
@@ -97,6 +106,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.botao_bateria_empresa).setOnClickListener { pedirSemRestricaoDeBateria() }
         findViewById<Button>(R.id.botao_bateria_pessoal).setOnClickListener { pedirSemRestricaoDeBateria() }
         findViewById<Button>(R.id.botao_teste).setOnClickListener { enviarTeste() }
+        findViewById<Button>(R.id.botao_notificacoes).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+        }
+        findViewById<Button>(R.id.botao_nao_perturbe).setOnClickListener {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+        }
+        findViewById<Button>(R.id.botao_tela_cheia).setOnClickListener { abrirTelaCheia() }
+        findViewById<Button>(R.id.botao_testar_alarme).setOnClickListener { testarAlarme() }
         findViewById<Button>(R.id.botao_sair_empresa).setOnClickListener { desparear() }
         findViewById<Button>(R.id.botao_sair_pessoal).setOnClickListener { desparear() }
 
@@ -189,6 +206,25 @@ class MainActivity : AppCompatActivity() {
         handler.postDelayed({ atualizarStatus() }, 3_000)
     }
 
+    private fun testarAlarme() {
+        Alarme.tocar(
+            this,
+            AvisoRecebido(
+                Preparo.PREFIXO_TESTE + System.currentTimeMillis(),
+                getString(R.string.teste_alarme_titulo), getString(R.string.teste_alarme_texto),
+            ),
+        )
+    }
+
+    private fun abrirTelaCheia() {
+        if (Build.VERSION.SDK_INT < 34) return
+        try {
+            startActivity(Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT, Uri.parse("package:$packageName")))
+        } catch (_: Exception) {
+            startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName))
+        }
+    }
+
     private fun desparear() {
         AvisoService.parar(this)
         cfg.limparPareamento()
@@ -206,6 +242,13 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) {
             startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
         }
+    }
+
+    private fun textoDaPendencia(p: Pendencia): Int = when (p) {
+        Pendencia.NOTIFICACOES -> R.string.pendencia_notificacoes
+        Pendencia.NAO_PERTURBE -> R.string.pendencia_nao_perturbe
+        Pendencia.BATERIA -> R.string.pendencia_bateria
+        Pendencia.TELA_CHEIA -> R.string.pendencia_tela_cheia
     }
 
     private fun atualizarStatus() {
@@ -232,9 +275,13 @@ class MainActivity : AppCompatActivity() {
             )
             val ultimo = cfg.ultimoAviso.ifEmpty { getString(R.string.nenhum_aviso) }
             statusPessoal.text = listOf(
-                getString(R.string.pareado_como, cfg.nome), conexao, bateria,
+                getString(R.string.pareado_como, cfg.nome), conexao,
                 getString(R.string.ultimo_aviso, ultimo),
             ).joinToString("\n")
+            val pendencias = Preparo.pendencias(Alarme.situacao(this))
+            statusAlarme.text = if (pendencias.isEmpty()) getString(R.string.alarme_ok)
+            else pendencias.joinToString("\n") { getString(textoDaPendencia(it)) }
+            botoesDoAlarme.forEach { (p, botao) -> botao.visibility = if (p in pendencias) View.VISIBLE else View.GONE }
         }
     }
 }

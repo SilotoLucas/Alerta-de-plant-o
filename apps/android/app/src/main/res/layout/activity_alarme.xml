@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/alarme_fundo"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp">
+
+    <ImageView
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_sino"
+        app:tint="@color/alarme_texto"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <TextView
+        android:id="@+id/alarme_titulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:textColor="@color/alarme_texto"
+        android:textSize="32sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/alarme_texto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:textColor="@color/alarme_texto"
+        android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/botao_vi"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:layout_marginTop="48dp"
+        android:backgroundTint="@color/alarme_texto"
+        android:text="@string/vi"
+        android:textColor="@color/alarme_fundo"
+        android:textSize="32sp" />
+</LinearLayout>

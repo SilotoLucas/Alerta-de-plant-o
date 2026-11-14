@@ -132,3 +132,37 @@ class ParserSseTest {
         assertNotNull(ler("data:x\n\n").first())
     }
 }
+
+class PreparoTest {
+    private val tudoLiberado = Situacao(notificacoes = true, naoPerturbe = true, telaCheia = true, bateria = true)
+
+    @Test
+    fun `com tudo liberado nao ha pendencia`() {
+        assertTrue(Preparo.pendencias(tudoLiberado).isEmpty())
+    }
+
+    @Test
+    fun `pendencias saem do mais grave ao menos grave`() {
+        val nada = Situacao(notificacoes = false, naoPerturbe = false, telaCheia = false, bateria = false)
+        assertEquals(
+            listOf(Pendencia.NOTIFICACOES, Pendencia.NAO_PERTURBE, Pendencia.BATERIA, Pendencia.TELA_CHEIA),
+            Preparo.pendencias(nada),
+        )
+    }
+
+    @Test
+    fun `so aparece a pendencia que falta`() {
+        assertEquals(listOf(Pendencia.TELA_CHEIA), Preparo.pendencias(tudoLiberado.copy(telaCheia = false)))
+    }
+
+    @Test
+    fun `aviso de teste nao tem Vi para confirmar ao servidor`() {
+        assertTrue(Preparo.ehTeste(Preparo.PREFIXO_TESTE + "1700000000000"))
+        assertTrue(!Preparo.ehTeste("01a1da9b-76a7-713f-9265-b5ed2fbd378c"))
+    }
+
+    @Test
+    fun `o alarme desiste sozinho depois de dez minutos`() {
+        assertEquals(600_000L, Preparo.TEMPO_MAXIMO_MS)
+    }
+}

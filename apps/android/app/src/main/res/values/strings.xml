@@ -40,8 +40,22 @@
     <string name="ultimo_aviso">Último aviso: %1$s</string>
     <string name="vi">Vi</string>
 
+    <string name="alarme_titulo_secao">Alarme</string>
+    <string name="alarme_ok">✔ Alarme pronto: som, “Não perturbe” e tela cheia liberados</string>
+    <string name="pendencia_notificacoes">✖ As notificações estão desligadas para o app: o alarme não toca</string>
+    <string name="pendencia_nao_perturbe">⚠ “Não perturbe” pode silenciar o alarme: libere o acesso</string>
+    <string name="pendencia_bateria">⚠ Bateria pode pausar o app: libere a restrição</string>
+    <string name="pendencia_tela_cheia">⚠ Sem tela cheia: o alarme toca, mas não acende a tela bloqueada</string>
+    <string name="liberar_nao_perturbe">Liberar “Não perturbe”</string>
+    <string name="liberar_tela_cheia">Liberar tela cheia</string>
+    <string name="abrir_notificacoes">Ligar notificações</string>
+    <string name="testar_alarme">Testar o alarme</string>
+    <string name="teste_alarme_titulo">Teste do alarme</string>
+    <string name="teste_alarme_texto">Se está tocando e vibrando, o alarme funciona. Toque em Vi.</string>
+
     <string name="canal_servico">Conexão do Alerta de Plantão</string>
-    <string name="canal_avisos">Avisos de plantão</string>
+    <string name="canal_alarme">Alarme de plantão</string>
+    <string name="canal_alarme_descricao">Toca alto e vibra até você tocar em Vi.</string>
     <string name="servico_conectado">Conectado: recebendo avisos</string>
     <string name="servico_reconectando">Reconectando ao servidor…</string>
     <string name="tile_ativo">De plantão</string>

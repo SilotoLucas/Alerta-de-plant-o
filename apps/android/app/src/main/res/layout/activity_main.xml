@@ -192,13 +192,49 @@
                 android:lineSpacingExtra="4dp"
                 android:textAppearance="?attr/textAppearanceBodyMedium" />
 
+            <TextView
+                android:id="@+id/status_alarme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:lineSpacingExtra="4dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <Button
+                android:id="@+id/botao_notificacoes"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/abrir_notificacoes" />
+
+            <Button
+                android:id="@+id/botao_nao_perturbe"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/liberar_nao_perturbe" />
+
+            <Button
+                android:id="@+id/botao_tela_cheia"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/liberar_tela_cheia" />
+
             <Button
                 android:id="@+id/botao_bateria_pessoal"
                 style="@style/Widget.Material3.Button.TonalButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:text="@string/liberar_bateria" />
+
+            <Button
+                android:id="@+id/botao_testar_alarme"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/testar_alarme" />
 
             <Button
                 android:id="@+id/botao_sair_pessoal"

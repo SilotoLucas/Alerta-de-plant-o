@@ -2,6 +2,8 @@
 <resources>
     <color name="verde">#25D366</color>
     <color name="verde_escuro">#128C7E</color>
+    <color name="alarme_fundo">#B71C1C</color>
+    <color name="alarme_texto">#FFFFFF</color>
 
     <style name="Theme.AlertaPlantao" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/verde_escuro</item>

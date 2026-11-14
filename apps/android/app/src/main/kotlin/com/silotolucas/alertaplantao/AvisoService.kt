@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat
 
 /**
  * Modo Pessoal. Servico em primeiro plano que mantem aberta a conexao (SSE) com o servidor e
- * transforma cada aviso em uma notificacao com o botao "Vi". Se a conexao cair, reconecta sozinho,
+ * transforma cada aviso em um alarme (`Alarme`) com o botao "Vi". Se a conexao cair, reconecta sozinho,
  * pedindo de volta o que ainda nao foi visto (Last-Event-ID).
  */
 class AvisoService : Service() {
@@ -34,9 +34,7 @@ class AvisoService : Service() {
         nm.createNotificationChannel(
             NotificationChannel(CANAL_SERVICO, getString(R.string.canal_servico), NotificationManager.IMPORTANCE_LOW),
         )
-        nm.createNotificationChannel(
-            NotificationChannel(CANAL_AVISOS, getString(R.string.canal_avisos), NotificationManager.IMPORTANCE_HIGH),
-        )
+        Alarme.prepararCanal(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -101,34 +99,9 @@ class AvisoService : Service() {
     private fun tratar(evento: EventoSse) {
         if (evento.tipo != "aviso") return
         val aviso = Protocolo.lerAviso(evento.dados) ?: return
-        mostrar(aviso)
+        Alarme.tocar(this, aviso)
         cfg.ultimoAvisoId = aviso.id
         cfg.ultimoAviso = "${aviso.titulo}: ${aviso.texto}"
-    }
-
-    private fun mostrar(aviso: AvisoRecebido) {
-        val idNotificacao = aviso.id.hashCode()
-        val vi = PendingIntent.getBroadcast(
-            this, idNotificacao,
-            Intent(this, VistoReceiver::class.java)
-                .putExtra(VistoReceiver.EXTRA_AVISO_ID, aviso.id)
-                .putExtra(VistoReceiver.EXTRA_NOTIFICACAO, idNotificacao),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-        )
-        val abrir = PendingIntent.getActivity(
-            this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE,
-        )
-        val notificacao = NotificationCompat.Builder(this, CANAL_AVISOS)
-            .setSmallIcon(R.drawable.ic_sino)
-            .setContentTitle(aviso.titulo)
-            .setContentText(aviso.texto)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(aviso.texto))
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(abrir)
-            .addAction(0, getString(R.string.vi), vi)
-            .build()
-        getSystemService(NotificationManager::class.java).notify(idNotificacao, notificacao)
     }
 
     private fun notificacaoDoServico(): Notification {
@@ -149,7 +122,6 @@ class AvisoService : Service() {
     companion object {
         private const val TAG = "AlertaPlantao"
         private const val CANAL_SERVICO = "servico"
-        private const val CANAL_AVISOS = "avisos"
         private const val ID_SERVICO = 1
 
         /** Inicia (ou mantem) a conexao, se este for um aparelho pessoal ja pareado. */

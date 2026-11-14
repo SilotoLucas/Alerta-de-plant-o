@@ -39,7 +39,7 @@ class Config(context: Context) {
             .putString("servidor", endereco).putString("token", p.token)
             .putString("papel", p.papel).putString("nome", p.nome)
             .putBoolean("inicializado", false).putString("ultimoAvisoId", "")
-            .putBoolean("plantaoAtivo", false).putString("conexao", "")
+            .putBoolean("plantaoAtivo", false).putString("conexao", "").putString("ultimoAviso", "")
             .apply()
     }
 

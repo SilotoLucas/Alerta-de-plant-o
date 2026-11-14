@@ -1,7 +1,15 @@
 package com.silotolucas.alertaplantao
 
+import android.content.Context
+
 /** Chamadas ao servidor que a tela e o botao rapido compartilham. Bloqueantes: use thread de fundo. */
 object Acoes {
+    /** "Vi": silencia o alarme e confirma ao servidor (com reenvio se estiver sem rede). Aviso de teste so silencia. */
+    fun visto(context: Context, avisoId: String, idNotificacao: Int) {
+        Alarme.silenciar(context, idNotificacao)
+        if (!Preparo.ehTeste(avisoId)) EntregaWorker.agendarVisto(context, avisoId)
+    }
+
     /**
      * Manda "sai", "voltei" ou "status" e guarda o estado devolvido. Devolve null se deu certo, ou o
      * texto do problema para mostrar ao usuario.
