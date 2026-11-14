@@ -1,43 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Alerta de Plantão</string>
-    <string name="subtitulo">Instale no celular da empresa. Avisa o seu celular pessoal quando chegar mensagem no WhatsApp.</string>
 
-    <string name="alertas_ativos">Alertas ativos</string>
-    <string name="enviar_texto">Enviar o texto das mensagens</string>
-    <string name="enviar_texto_ajuda">Desligado: o aviso mostra só o nome do grupo ou contato. Ligado: inclui o texto, que passa pelo seu servidor.</string>
+    <string name="parear_ajuda">Digite o código de 6 dígitos que o administrador gerou para este celular. É só isso.</string>
+    <string name="hint_codigo">Código de pareamento</string>
+    <string name="hint_nome">Nome deste celular</string>
+    <string name="hint_servidor">Endereço do servidor</string>
+    <string name="parear">Parear</string>
+    <string name="avancado">Avançado: endereço do servidor</string>
+    <string name="erro_sem_servidor">Informe o endereço do servidor em “Avançado”.</string>
+    <string name="erro_sem_codigo">Digite o código de pareamento.</string>
+    <string name="erro_sem_rede">Sem conexão com o servidor (%1$s).</string>
+    <string name="erro_muitas_tentativas">Muitas tentativas. Espere um minuto e tente de novo.</string>
+    <string name="erro_servidor">O servidor recusou (HTTP %1$d).</string>
+    <string name="desparear">Desparear este celular</string>
+    <string name="pareado_como">✔ Pareado como “%1$s”</string>
 
-    <string name="secao_servidor">Servidor de avisos (ntfy)</string>
-    <string name="hint_url">Endereço do servidor (https://…)</string>
-    <string name="hint_topico">Tópico</string>
-    <string name="hint_token">Token de acesso</string>
-    <string name="salvar">Salvar</string>
-    <string name="enviar_teste">Enviar teste</string>
-    <string name="salvo">Configuração salva</string>
-    <string name="falta_servidor">Preencha o endereço do servidor e o tópico.</string>
-    <string name="teste_titulo">Teste do Alerta de Plantão</string>
-    <string name="teste_texto">Se você está lendo isto no celular pessoal, está funcionando.</string>
-    <string name="teste_enviado">Teste enviado</string>
-
-    <string name="secao_situacao">Situação</string>
+    <string name="empresa_ajuda">Celular da empresa. Quando chegar mensagem no WhatsApp, o servidor avisa quem estiver de plantão.</string>
     <string name="status_acesso_ok">✔ Acesso às notificações liberado</string>
     <string name="status_acesso_falta">✖ Falta liberar o acesso às notificações</string>
-    <string name="status_servidor_ok">✔ Servidor configurado</string>
-    <string name="status_servidor_falta">✖ Servidor não configurado</string>
     <string name="status_bateria_ok">✔ Sem restrição de bateria</string>
     <string name="status_bateria_falta">⚠ Bateria pode pausar o app: libere a restrição</string>
-    <string name="entrega_nenhuma">Nenhum aviso enviado ainda</string>
-    <string name="entrega_ok">✔ Último aviso entregue às %1$s</string>
-    <string name="entrega_falha">✖ Último aviso falhou (%1$s) às %2$s</string>
+    <string name="entrega_nenhuma">Nenhuma mensagem enviada ainda</string>
+    <string name="entrega_ok">✔ Última entrega ao servidor às %1$s</string>
+    <string name="entrega_falha">✖ Última entrega falhou (%1$s) às %2$s</string>
     <string name="permitir_acesso">Liberar acesso às notificações</string>
     <string name="liberar_bateria">Liberar restrição de bateria</string>
     <string name="bateria_ja_livre">A bateria já está liberada para o app.</string>
+    <string name="enviar_teste">Enviar aviso de teste</string>
+    <string name="teste_conversa">Teste do Alerta de Plantão</string>
+    <string name="teste_texto">Se você recebeu este aviso, está funcionando.</string>
+    <string name="teste_enviado">Teste enviado a quem está de plantão</string>
 
-    <string name="ajuda_comandos">Do celular pessoal, publique no tópico “&lt;tópico&gt;-cmd”: “sai” liga os alertas, “voltei” desliga e “status” pergunta como está.</string>
+    <string name="de_plantao">De plantão</string>
+    <string name="pessoal_ajuda">Ligado: você recebe os avisos do celular da empresa. Desligado: nenhum aviso chega.</string>
+    <string name="status_conectado">✔ Conectado ao servidor</string>
+    <string name="status_reconectando">⚠ Reconectando ao servidor…</string>
+    <string name="nenhum_aviso">nenhum ainda</string>
+    <string name="ultimo_aviso">Último aviso: %1$s</string>
+    <string name="vi">Vi</string>
 
-    <string name="canal_servico">Serviço do Alerta de Plantão</string>
-    <string name="servico_ativo">Alertas ativos</string>
-    <string name="servico_desativado">Alertas desativados</string>
-    <string name="tile_ativo">Ativo</string>
-    <string name="tile_desativado">Desativado</string>
+    <string name="canal_servico">Conexão do Alerta de Plantão</string>
+    <string name="canal_avisos">Avisos de plantão</string>
+    <string name="servico_conectado">Conectado: recebendo avisos</string>
+    <string name="servico_reconectando">Reconectando ao servidor…</string>
+    <string name="tile_ativo">De plantão</string>
+    <string name="tile_desativado">Fora do plantão</string>
+    <string name="tile_sem_pareamento">Pareie o app</string>
 </resources>

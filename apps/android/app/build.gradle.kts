@@ -15,12 +15,17 @@ android {
         versionName = "2.0"
         // Apps cujas notificacoes viram alerta (WhatsApp normal e Business).
         buildConfigField("String", "PACOTES_ALVO", "\"com.whatsapp,com.whatsapp.w4b\"")
+        // Endereco da API que o app ja traz preenchido (so aparece em "Avancado"). Em vazio, o
+        // campo fica a mostra. Gere com: ./gradlew assembleRelease -Pservidor=https://alerta.exemplo.com
+        buildConfigField("String", "SERVIDOR_PADRAO", "\"${project.findProperty("servidor") ?: ""}\"")
     }
 
     buildTypes {
         debug {
             // No debug, o app do shell tambem vale: permite testar com `adb shell cmd notification post`.
             buildConfigField("String", "PACOTES_ALVO", "\"com.whatsapp,com.whatsapp.w4b,com.android.shell\"")
+            // No emulador, o computador que roda a API e o 10.0.2.2.
+            buildConfigField("String", "SERVIDOR_PADRAO", "\"${project.findProperty("servidor") ?: "http://10.0.2.2:3350"}\"")
         }
         release {
             isMinifyEnabled = false

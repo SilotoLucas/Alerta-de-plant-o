@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -23,20 +24,38 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.textfield.TextInputEditText
 import java.text.DateFormat
 import java.util.Date
+import java.util.concurrent.Executors
 
+/** Uma tela, tres estados: pedir o codigo (nao pareado), modo Empresa ou modo Pessoal. */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var cfg: Config
-    private lateinit var campoUrl: TextInputEditText
-    private lateinit var campoTopico: TextInputEditText
-    private lateinit var campoToken: TextInputEditText
-    private lateinit var chaveAtivo: SwitchCompat
-    private lateinit var chaveTexto: SwitchCompat
-    private lateinit var status: TextView
+    private lateinit var grupoParear: View
+    private lateinit var grupoEmpresa: View
+    private lateinit var grupoPessoal: View
+    private lateinit var campoCodigo: TextInputEditText
+    private lateinit var campoNome: TextInputEditText
+    private lateinit var campoServidor: TextInputEditText
+    private lateinit var blocoServidor: View
+    private lateinit var erroParear: TextView
+    private lateinit var botaoParear: Button
+    private lateinit var statusEmpresa: TextView
+    private lateinit var statusPessoal: TextView
+    private lateinit var chavePlantao: SwitchCompat
     private val handler = Handler(Looper.getMainLooper())
+    private val fundo = Executors.newSingleThreadExecutor()
+    private var visivel = false
+
+    private val atualizador = object : Runnable {
+        override fun run() {
+            if (!visivel) return
+            atualizarStatus()
+            handler.postDelayed(this, 2_000)
+        }
+    }
 
     private val pedirNotificacoes = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        ComandoService.iniciar(this)
+        AvisoService.iniciar(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,32 +70,35 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        campoUrl = findViewById(R.id.campo_url)
-        campoTopico = findViewById(R.id.campo_topico)
-        campoToken = findViewById(R.id.campo_token)
-        chaveAtivo = findViewById(R.id.chave_ativo)
-        chaveTexto = findViewById(R.id.chave_texto)
-        status = findViewById(R.id.status)
+        grupoParear = findViewById(R.id.grupo_parear)
+        grupoEmpresa = findViewById(R.id.grupo_empresa)
+        grupoPessoal = findViewById(R.id.grupo_pessoal)
+        campoCodigo = findViewById(R.id.campo_codigo)
+        campoNome = findViewById(R.id.campo_nome)
+        campoServidor = findViewById(R.id.campo_servidor)
+        blocoServidor = findViewById(R.id.bloco_servidor)
+        erroParear = findViewById(R.id.erro_parear)
+        botaoParear = findViewById(R.id.botao_parear)
+        statusEmpresa = findViewById(R.id.status_empresa)
+        statusPessoal = findViewById(R.id.status_pessoal)
+        chavePlantao = findViewById(R.id.chave_plantao)
 
-        campoUrl.setText(cfg.url)
-        campoTopico.setText(cfg.topico)
-        campoToken.setText(cfg.token)
-        chaveTexto.isChecked = cfg.enviarTexto
-
-        chaveAtivo.setOnCheckedChangeListener { _, marcado -> cfg.ativo = marcado }
-        chaveTexto.setOnCheckedChangeListener { _, marcado -> cfg.enviarTexto = marcado }
-
-        findViewById<Button>(R.id.botao_salvar).setOnClickListener {
-            salvar()
-            Toast.makeText(this, R.string.salvo, Toast.LENGTH_SHORT).show()
-            ComandoService.iniciar(this)
-            atualizarStatus()
+        campoNome.setText(Build.MODEL)
+        campoServidor.setText(cfg.servidor.ifEmpty { BuildConfig.SERVIDOR_PADRAO })
+        blocoServidor.visibility = if (BuildConfig.SERVIDOR_PADRAO.isEmpty()) View.VISIBLE else View.GONE
+        findViewById<Button>(R.id.botao_avancado).setOnClickListener {
+            blocoServidor.visibility = if (blocoServidor.visibility == View.VISIBLE) View.GONE else View.VISIBLE
         }
-        findViewById<Button>(R.id.botao_teste).setOnClickListener { enviarTeste() }
+
+        botaoParear.setOnClickListener { parear() }
         findViewById<Button>(R.id.botao_acesso).setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
-        findViewById<Button>(R.id.botao_bateria).setOnClickListener { pedirSemRestricaoDeBateria() }
+        findViewById<Button>(R.id.botao_bateria_empresa).setOnClickListener { pedirSemRestricaoDeBateria() }
+        findViewById<Button>(R.id.botao_bateria_pessoal).setOnClickListener { pedirSemRestricaoDeBateria() }
+        findViewById<Button>(R.id.botao_teste).setOnClickListener { enviarTeste() }
+        findViewById<Button>(R.id.botao_sair_empresa).setOnClickListener { desparear() }
+        findViewById<Button>(R.id.botao_sair_pessoal).setOnClickListener { desparear() }
 
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
@@ -87,39 +109,90 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // o estado pode ter mudado por fora (botao rapido, comando remoto)
-        chaveAtivo.setOnCheckedChangeListener(null)
-        chaveAtivo.isChecked = cfg.ativo
-        chaveAtivo.setOnCheckedChangeListener { _, marcado -> cfg.ativo = marcado }
-        ComandoService.iniciar(this)
-        atualizarStatus()
+        visivel = true
+        mostrarGrupo()
+        if (cfg.ehPessoal) {
+            AvisoService.iniciar(this)
+            fundo.execute { Acoes.plantao(cfg, "status"); runOnUiThread { mostrarGrupo() } }
+        }
+        handler.post(atualizador)
     }
 
     override fun onPause() {
-        salvar()
+        visivel = false
+        handler.removeCallbacks(atualizador)
         super.onPause()
     }
 
-    private fun salvar() {
-        var url = campoUrl.text.toString().trim()
-        if (url.isNotEmpty() && !url.startsWith("http://") && !url.startsWith("https://")) url = "https://$url"
-        cfg.url = url
-        cfg.topico = campoTopico.text.toString().trim().trim('/')
-        cfg.token = campoToken.text.toString().trim()
+    private fun mostrarGrupo() {
+        grupoParear.visibility = if (cfg.pareado) View.GONE else View.VISIBLE
+        grupoEmpresa.visibility = if (cfg.ehEmpresa) View.VISIBLE else View.GONE
+        grupoPessoal.visibility = if (cfg.ehPessoal) View.VISIBLE else View.GONE
+        chavePlantao.setOnCheckedChangeListener(null)
+        chavePlantao.isChecked = cfg.plantaoAtivo
+        chavePlantao.setOnCheckedChangeListener { _, marcado -> alterarPlantao(marcado) }
+        atualizarStatus()
+    }
+
+    private fun parear() {
+        val codigo = campoCodigo.text.toString().trim()
+        val nome = campoNome.text.toString().trim()
+        val endereco = Protocolo.normalizarEndereco(campoServidor.text.toString())
+        if (endereco.isEmpty()) { erroParear.text = getString(R.string.erro_sem_servidor); return }
+        if (codigo.isEmpty()) { erroParear.text = getString(R.string.erro_sem_codigo); return }
+        erroParear.text = ""
+        botaoParear.isEnabled = false
+        fundo.execute {
+            val mensagem = tentarParear(endereco, codigo, nome)
+            runOnUiThread {
+                botaoParear.isEnabled = true
+                erroParear.text = mensagem ?: ""
+                if (mensagem == null) {
+                    campoCodigo.setText("")
+                    if (cfg.ehPessoal) AvisoService.iniciar(this)
+                    mostrarGrupo()
+                }
+            }
+        }
+    }
+
+    /** Null se pareou; senao o texto do problema. */
+    private fun tentarParear(endereco: String, codigo: String, nome: String): String? =
+        when (val r = Api(endereco, null).parear(codigo, nome)) {
+            is Resposta.SemRede -> getString(R.string.erro_sem_rede, r.detalhe)
+            is Resposta.Recebida -> {
+                val pareado = if (r.http == 201) Protocolo.lerAparelhoPareado(r.corpo) else null
+                if (pareado != null) {
+                    cfg.salvarPareamento(endereco, pareado)
+                    null
+                } else if (r.http == 429) getString(R.string.erro_muitas_tentativas)
+                else Protocolo.lerMensagemDeErro(r.corpo) ?: getString(R.string.erro_servidor, r.http)
+            }
+        }
+
+    private fun alterarPlantao(ligar: Boolean) {
+        fundo.execute {
+            val erro = Acoes.plantao(cfg, if (ligar) "sai" else "voltei")
+            runOnUiThread {
+                if (erro != null) Toast.makeText(this, erro, Toast.LENGTH_LONG).show()
+                mostrarGrupo()
+            }
+        }
     }
 
     private fun enviarTeste() {
-        salvar()
-        if (cfg.servidor() == null) {
-            Toast.makeText(this, R.string.falta_servidor, Toast.LENGTH_LONG).show()
-            return
-        }
-        EnviarWorker.agendar(
-            this, getString(R.string.teste_titulo), getString(R.string.teste_texto), prioridade = 4, tags = listOf("white_check_mark"),
+        EntregaWorker.agendarEvento(
+            this, getString(R.string.teste_conversa),
+            listOf(Mensagem(null, getString(R.string.teste_texto), System.currentTimeMillis())), silencioso = false,
         )
         Toast.makeText(this, R.string.teste_enviado, Toast.LENGTH_SHORT).show()
-        handler.postDelayed({ atualizarStatus() }, 3000)
-        handler.postDelayed({ atualizarStatus() }, 10000)
+        handler.postDelayed({ atualizarStatus() }, 3_000)
+    }
+
+    private fun desparear() {
+        AvisoService.parar(this)
+        cfg.limparPareamento()
+        mostrarGrupo()
     }
 
     private fun pedirSemRestricaoDeBateria() {
@@ -136,21 +209,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun atualizarStatus() {
-        val acesso = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
-        val bateriaLivre = getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName)
-        val entrega = when {
-            cfg.entregaHora == 0L -> getString(R.string.entrega_nenhuma)
-            else -> {
+        val bateria = getString(
+            if (getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(packageName))
+                R.string.status_bateria_ok else R.string.status_bateria_falta,
+        )
+        if (cfg.ehEmpresa) {
+            val acesso = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+            val entrega = if (cfg.entregaHora == 0L) getString(R.string.entrega_nenhuma) else {
                 val hora = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(cfg.entregaHora))
                 if (cfg.entregaOk) getString(R.string.entrega_ok, hora)
                 else getString(R.string.entrega_falha, cfg.entregaDetalhe, hora)
             }
+            statusEmpresa.text = listOf(
+                getString(R.string.pareado_como, cfg.nome),
+                getString(if (acesso) R.string.status_acesso_ok else R.string.status_acesso_falta),
+                bateria, entrega,
+            ).joinToString("\n")
         }
-        status.text = listOf(
-            getString(if (acesso) R.string.status_acesso_ok else R.string.status_acesso_falta),
-            getString(if (cfg.servidor() != null) R.string.status_servidor_ok else R.string.status_servidor_falta),
-            getString(if (bateriaLivre) R.string.status_bateria_ok else R.string.status_bateria_falta),
-            entrega,
-        ).joinToString("\n")
+        if (cfg.ehPessoal) {
+            val conexao = getString(
+                if (cfg.conexao == "conectado") R.string.status_conectado else R.string.status_reconectando,
+            )
+            val ultimo = cfg.ultimoAviso.ifEmpty { getString(R.string.nenhum_aviso) }
+            statusPessoal.text = listOf(
+                getString(R.string.pareado_como, cfg.nome), conexao, bateria,
+                getString(R.string.ultimo_aviso, ultimo),
+            ).joinToString("\n")
+        }
     }
 }

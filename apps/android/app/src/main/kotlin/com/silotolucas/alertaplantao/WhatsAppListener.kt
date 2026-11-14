@@ -9,40 +9,42 @@ import android.util.Log
 import androidx.core.os.BundleCompat
 
 /**
- * Le as notificacoes que o proprio WhatsApp gera neste celular (o da empresa) e as encaminha ao
- * servidor ntfy. Nao toca no WhatsApp em si: so le o que ele ja mostra na barra de notificacoes.
+ * Modo Empresa. Le as notificacoes que o proprio WhatsApp gera neste celular e repassa ao
+ * servidor, que decide o que e novo e quem avisar. Nao toca no WhatsApp em si: so le o que ele ja
+ * mostra na barra de notificacoes.
  */
 class WhatsAppListener : NotificationListenerService() {
 
     private lateinit var cfg: Config
-    private val dedup = Deduplicador()
     private val pacotes = BuildConfig.PACOTES_ALVO.split(',').toSet()
 
     override fun onCreate() {
         super.onCreate()
         cfg = Config(this)
-        dedup.importar(cfg.vistos)
     }
 
     override fun onListenerConnected() {
-        // Primeira vez: o que ja esta na barra e antigo, nao avisa.
-        if (!cfg.inicializado) {
-            try { activeNotifications?.forEach { processar(it, enviar = false) } } catch (e: Exception) { Log.w(TAG, "init", e) }
+        if (!cfg.ehEmpresa || cfg.inicializado) return
+        // Primeira vez: o que ja esta na barra e antigo. Vai ao servidor em silencio, so para ele
+        // reconhecer essas mensagens quando o WhatsApp as reaparecer junto com uma nova.
+        try {
+            activeNotifications?.forEach { processar(it, silencioso = true) }
             cfg.inicializado = true
+        } catch (e: Exception) {
+            Log.w(TAG, "init", e)
         }
-        ComandoService.iniciar(this)
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
+        if (!cfg.ehEmpresa) return
         try {
-            // Desativado: ainda le (marca como visto) para nao avisar tudo de uma vez ao reativar.
-            processar(sbn, enviar = cfg.ativo)
+            processar(sbn, silencioso = false)
         } catch (e: Exception) {
             Log.w(TAG, "erro ao processar notificacao", e)
         }
     }
 
-    private fun processar(sbn: StatusBarNotification, enviar: Boolean) {
+    private fun processar(sbn: StatusBarNotification, silencioso: Boolean) {
         if (sbn.packageName !in pacotes) return
         val n = sbn.notification
         if (n.flags and Notification.FLAG_GROUP_SUMMARY != 0) return   // resumo "N mensagens de M conversas"
@@ -53,13 +55,9 @@ class WhatsAppListener : NotificationListenerService() {
             ?: extras.getCharSequence(Notification.EXTRA_TITLE))?.toString()?.trim()
         if (conversa.isNullOrEmpty()) return
 
-        val novas = dedup.novas(conversa, lerMensagens(n))
-        if (novas.isEmpty()) return
-        cfg.vistos = dedup.exportar()
-        if (!enviar) return
-
-        val aviso = Avisos.montar(conversa, novas, cfg.enviarTexto)
-        EnviarWorker.agendar(this, aviso.titulo, aviso.texto)
+        val mensagens = lerMensagens(n)
+        if (mensagens.isEmpty()) return
+        EntregaWorker.agendarEvento(this, conversa, mensagens, silencioso)
     }
 
     /** Cada mensagem do MessagingStyle; sem ele, usa o texto unico da notificacao. */

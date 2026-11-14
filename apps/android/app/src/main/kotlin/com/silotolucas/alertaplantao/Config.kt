@@ -5,51 +5,76 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.service.quicksettings.TileService
 
-/** Configuracao e estado do app (SharedPreferences privado do app). */
+/**
+ * O que o app guarda no celular: o pareamento (endereco, token, papel) e alguns caches so para a
+ * tela mostrar algo sem esperar a rede. A fonte da verdade (plantao ligado, quem e novo) e o servidor.
+ */
 class Config(context: Context) {
     private val app = context.applicationContext
     val prefs: SharedPreferences = app.getSharedPreferences("config", Context.MODE_PRIVATE)
 
-    var url: String
-        get() = prefs.getString("url", "") ?: ""
-        set(v) = prefs.edit().putString("url", v).apply()
-
-    var topico: String
-        get() = prefs.getString("topico", "") ?: ""
-        set(v) = prefs.edit().putString("topico", v).apply()
+    var servidor: String
+        get() = prefs.getString("servidor", "") ?: ""
+        set(v) = prefs.edit().putString("servidor", v).apply()
 
     var token: String
         get() = prefs.getString("token", "") ?: ""
         set(v) = prefs.edit().putString("token", v).apply()
 
-    /** Liga/desliga os alertas. Quando desligado o app continua lendo (para nao reavisar depois), mas nao envia. */
-    var ativo: Boolean
-        get() = prefs.getBoolean("ativo", true)
+    /** "empresa", "pessoal" ou "" (ainda nao pareado). Quem decide e o codigo de pareamento. */
+    var papel: String
+        get() = prefs.getString("papel", "") ?: ""
+        set(v) = prefs.edit().putString("papel", v).apply()
+
+    var nome: String
+        get() = prefs.getString("nome", "") ?: ""
+        set(v) = prefs.edit().putString("nome", v).apply()
+
+    val pareado: Boolean get() = servidor.isNotEmpty() && token.isNotEmpty() && papel.isNotEmpty()
+    val ehEmpresa: Boolean get() = pareado && papel == "empresa"
+    val ehPessoal: Boolean get() = pareado && papel == "pessoal"
+
+    fun salvarPareamento(endereco: String, p: AparelhoPareado) {
+        prefs.edit()
+            .putString("servidor", endereco).putString("token", p.token)
+            .putString("papel", p.papel).putString("nome", p.nome)
+            .putBoolean("inicializado", false).putString("ultimoAvisoId", "")
+            .putBoolean("plantaoAtivo", false).putString("conexao", "")
+            .apply()
+    }
+
+    /** Token recusado pelo servidor (aparelho revogado) ou o usuario saiu: volta a pedir o codigo. */
+    fun limparPareamento() {
+        prefs.edit().remove("token").remove("papel").remove("nome").putString("conexao", "").apply()
+        avisarTile()
+    }
+
+    /** Cache do plantao do celular pessoal, para a tela e o botao rapido. */
+    var plantaoAtivo: Boolean
+        get() = prefs.getBoolean("plantaoAtivo", false)
         set(v) {
-            prefs.edit().putBoolean("ativo", v).apply()
-            try {
-                TileService.requestListeningState(app, ComponentName(app, AlertaTile::class.java))
-            } catch (_: Exception) {
-            }
+            prefs.edit().putBoolean("plantaoAtivo", v).apply()
+            avisarTile()
         }
 
-    /** Privacidade: o texto das mensagens e de cliente. Padrao: so o nome da conversa. */
-    var enviarTexto: Boolean
-        get() = prefs.getBoolean("enviarTexto", false)
-        set(v) = prefs.edit().putBoolean("enviarTexto", v).apply()
-
-    /** Ja registrou o que estava na barra de notificacoes na primeira conexao? */
+    /** Modo Empresa: ja mandou ao servidor, em silencio, o que estava na barra na primeira conexao? */
     var inicializado: Boolean
         get() = prefs.getBoolean("inicializado", false)
         set(v) = prefs.edit().putBoolean("inicializado", v).apply()
 
-    var vistos: String
-        get() = prefs.getString("vistos", "") ?: ""
-        set(v) = prefs.edit().putString("vistos", v).apply()
+    /** Modo Pessoal: ultimo aviso recebido (vai em Last-Event-ID ao reconectar). */
+    var ultimoAvisoId: String
+        get() = prefs.getString("ultimoAvisoId", "") ?: ""
+        set(v) = prefs.edit().putString("ultimoAvisoId", v).apply()
 
-    var ultimoComandoId: String
-        get() = prefs.getString("ultimoComandoId", "") ?: ""
-        set(v) = prefs.edit().putString("ultimoComandoId", v).apply()
+    /** Modo Pessoal: "conectado", "reconectando" ou "". */
+    var conexao: String
+        get() = prefs.getString("conexao", "") ?: ""
+        set(v) = prefs.edit().putString("conexao", v).apply()
+
+    var ultimoAviso: String
+        get() = prefs.getString("ultimoAviso", "") ?: ""
+        set(v) = prefs.edit().putString("ultimoAviso", v).apply()
 
     var entregaHora: Long
         get() = prefs.getLong("entregaHora", 0L)
@@ -63,15 +88,16 @@ class Config(context: Context) {
         get() = prefs.getString("entregaDetalhe", "") ?: ""
         private set(v) = prefs.edit().putString("entregaDetalhe", v).apply()
 
-    fun registrarEntrega(r: Resultado) {
-        entregaOk = r.tipo == Tipo.OK
-        entregaDetalhe = r.detalhe
+    fun registrarEntrega(ok: Boolean, detalhe: String) {
+        entregaOk = ok
+        entregaDetalhe = detalhe
         entregaHora = System.currentTimeMillis()
     }
 
-    /** Null enquanto faltar endereco ou topico. */
-    fun servidor(): Servidor? {
-        val u = url.trim(); val t = topico.trim()
-        return if (u.isEmpty() || t.isEmpty()) null else Servidor(u, t, token)
+    private fun avisarTile() {
+        try {
+            TileService.requestListeningState(app, ComponentName(app, AlertaTile::class.java))
+        } catch (_: Exception) {
+        }
     }
 }
