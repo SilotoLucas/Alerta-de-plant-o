@@ -31,6 +31,9 @@ celular pessoal    <──SSE───  Caddy                      (sem portas p
 
 ## 2. Instalar (uma vez, na VM, como root)
 
+> Quer que o Claude Code da VM faça isso por você? Diga a ele para clonar o repositório e seguir
+> [prompt-vm.md](prompt-vm.md): ele instala, verifica e devolve um relatório.
+
 ```bash
 git clone https://github.com/SilotoLucas/Alerta-de-plant-o.git /opt/plantao
 /opt/plantao/deploy/instalar.sh                      # ou: instalar.sh seu.dominio.com.br
