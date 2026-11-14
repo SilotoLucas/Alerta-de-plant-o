@@ -13,8 +13,9 @@ não reabra sem motivo novo), [docs/plano-produto.md](docs/plano-produto.md) (fl
 Estado: **R3 pronta** (alarme: canal que fura "Não perturbe", som de alarme que repete até o "Vi", tela cheia
 por cima do bloqueio, guia de permissões na tela e botão "Testar o alarme"; só emulador). **R2 pronta** (R1: API com pareamento por código, evento com deduplicação, plantão por aparelho
 pessoal, "Vi" e entrega por SSE, Postgres; R2: app Android único com modo Empresa e Pessoal falando com
-a API, testado no emulador com notificação simulada). O alerta do Windows segue como antes. O ntfy
-(`deploy/ntfy`) não é mais usado e sai na R4. A **R4** (deploy na VM) **só começa depois do OK do dono**.
+a API, testado no emulador com notificação simulada). O alerta do Windows segue como antes. **R4 pronta no código** (retenção de 7 dias, Docker, borda, deploy
+automático, APK assinado; testada local com Postgres e Caddy): falta o dono instalar na VM (
+[docs/deploy.md](docs/deploy.md)) e testar com o WhatsApp real. O ntfy foi removido.
 Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
 
 ## Comandos
@@ -30,6 +31,8 @@ Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
 | `bun run infra:verificar` | confere se o banco de teste está de pé (o gate chama) |
 | `bun run dev:api` | API em `localhost:3350` (precisa de `.env`: copie `.env.example`) |
 | `bun run format` | formata com Biome |
+| `apps/android/gerar-release.sh https://endereco` | APK final assinado (chave em `~/.config/alerta-plantao`, fora do git) |
+| `deploy/instalar.sh` · `deploy/codigo.sh pessoal` | na VM: primeira instalação · gera código de pareamento |
 | `cd apps/android && ./gradlew testDebugUnitTest assembleDebug` | testes e APK do app (veja `.claude/rules/android.md` para o `JAVA_HOME`) |
 
 Só `bun`. Nunca `npm`, `yarn`, `pnpm` nem `npx`. O gate de TypeScript **não cobre** `apps/android` nem
@@ -139,8 +142,8 @@ Abanou. As deste projeto:
 4. **`adb shell "..."` junta os argumentos.** Nome com espaço e `|` dentro de `grep -E "a|b"` precisam
    estar em UMA string entre aspas; sem isso o título sai cortado ("Grupo") ou o `grep` vira um pipe e
    trava esperando stdin.
-5. **A imagem do ntfy não cria `/var/lib/ntfy`.** Sem volume nesse caminho, `auth-file` falha ao
-   subir. O `docker-compose.yml` já monta o volume.
+5. **O Caddy não pode comprimir nem bufferizar o SSE:** o site da borda usa `flush_interval -1` e sem
+   `encode`. Testado local: o aviso atravessa o proxy na hora.
 6. **Emulador:** AVD temporário (`-port 5556 -wipe-data`), nunca o `Pixel_8`; apague ao terminar. Para
    simular o WhatsApp use `cmd notification post -S messaging ...` com o build `debug`.
 7. **Android 15 (targetSdk 35) desenha de borda a borda:** aplique as margens do sistema na tela ou o
@@ -177,3 +180,9 @@ Abanou. As deste projeto:
     perturbe"** (`isNotificationPolicyAccessGranted` vira `true`). Para ver a pendência na tela, desligue o
     listener: `cmd notification disallow_listener com.silotolucas.alertaplantao/com.silotolucas.alertaplantao.WhatsAppListener`.
     O emulador também não tem PIN, então "tela bloqueada" só prova que a tela acende e o alarme abre.
+22. **`apksigner` precisa de `java` no PATH e lê senha de arquivo uma linha por uso:** o script passa a
+    senha por variável de ambiente (`env:`), não por `file:` repetido.
+23. **O `.gitignore` ignora `.env.*`:** o modelo de deploy se chama `deploy/.env.example` (exceção). O
+    `deploy/.env` da VM nasce no `instalar.sh` com segredos aleatórios e nunca vai ao git nem à imagem.
+24. **O deploy da VM puxa da `main`:** nada do `deploy/` funciona lá antes do push. O compose local de
+    teste usa `-p plantao-teste` e remove tudo no fim (`down -v`); não tem rede `borda` fora da VM.

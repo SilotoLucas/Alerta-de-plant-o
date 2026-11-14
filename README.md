@@ -17,10 +17,10 @@ O servidor só repassa um aviso curto; ele não acessa o WhatsApp. Como cada pe�
 |---|---|---|
 | [`apps/windows`](apps/windows/README.md) | Alerta no computador: cartão no topo, brilho nas bordas e som, para quem usa o WhatsApp Desktop | funciona |
 | [`apps/android`](apps/android/README.md) | App único: modo Empresa (lê o WhatsApp) e modo Pessoal (recebe o aviso, botão "Vi"), pareado por código | pronto, testado só no emulador |
-| [`apps/api`](docs/api.md) | Servidor próprio na VM (pareamento, deduplicação, plantão ligado/desligado, "Vi", entrega por SSE) | pronto, roda local; vai para a VM na R4 |
+| [`apps/api`](docs/api.md) | Servidor próprio na VM (pareamento, deduplicação, plantão ligado/desligado, "Vi", entrega por SSE, limpeza de dados antigos) | pronto; instalação na VM em [docs/deploy.md](docs/deploy.md) |
 | [`packages/*`](packages) | `domain` (regras puras), `application` (casos de uso), `contracts`, `infra` (Postgres) | pronto |
 | [`tools/quality`](tools/quality) | Gate de qualidade (`bun run validate`) | pronto |
-| [`deploy/ntfy`](deploy/ntfy/README.md) | Servidor ntfy da versão antiga; o app não usa mais | sai na R4 |
+| [`deploy`](docs/deploy.md) | Docker (API + Postgres), proxy da borda, deploy automático, geração do APK assinado | pronto, falta instalar na VM |
 | [`docs`](docs) | Arquitetura, decisões, plano e histórico | atualizado |
 
 ## Começar

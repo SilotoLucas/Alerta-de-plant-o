@@ -3,7 +3,7 @@
 > **Documento histórico.** Escrito antes da reestruturação de 2026-11-14. A estrutura atual está em
 > [arquitetura.md](arquitetura.md), as decisões em [decisoes.md](decisoes.md) e o plano em
 > [plano-produto.md](plano-produto.md). Os caminhos `android/` e `servidor/` daqui hoje são
-> `apps/android/` e `deploy/ntfy/`; os arquivos do Windows estão em `apps/windows/`.
+> `apps/android/` e `deploy/ntfy/` (removido na R4); os arquivos do Windows estão em `apps/windows/`.
 
 Documento para retomar o projeto em outra máquina/sessão (próxima fase: app Android, na máquina
 Linux com Android Studio). Última atualização: 2026-11-14.

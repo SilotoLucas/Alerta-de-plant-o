@@ -13,6 +13,29 @@ outro para se explicar.
 **Situação de cada decisão:** *Decidida* já está em vigor. *Proposta* aguarda o OK do dono. D7 a D10
 foram aprovadas em 2026-11-14 (o dono disse "pode seguir com a R1") e valem desde a R1.
 
+## 2026-11-14 (R4, deploy)
+
+**D18. Deploy como o do Bússola: Caddy do Abanou na borda, timer que puxa a `main` a cada 2 minutos.** *Decidida.*
+Motivo: a VM já tem proxy, rede `borda` e esse fluxo; repetir o desenho evita uma segunda solução para o
+mesmo problema. Push na `main` é deploy em produção. O repositório é público, então a VM clona por https,
+sem deploy key. Descartado: Caddy próprio (80/443 só aceitam um dono), deploy manual (esquece de atualizar).
+
+**D19. Endereço `plantao.194.5.152.64.sslip.io` enquanto não houver domínio; um host só para a API, sem prefixo `/api`.** *Decidida.*
+Motivo: o sslip.io dá certificado válido sem cadastro e o Android release exige https. Trocar para
+domínio próprio é mudar `DOMINIO` no `deploy/.env` e **gerar o APK de novo** (o endereço vai dentro dele).
+O site do proxy usa `flush_interval -1` e não comprime: compressão seguraria o SSE.
+
+**D20. Retenção de 7 dias, feita pela própria API.** *Decidida.*
+Motivo: sem isso o banco cresce para sempre com hashes e avisos de cliente. A API roda a limpeza ao subir e
+a cada hora (`limparDadosAntigos`, `RETENCAO_EM_DIAS`), sem container nem timer a mais. Apaga hashes de
+mensagens, avisos e códigos de pareamento vencidos com mais de 7 dias. Efeito: mensagem com mais de 7 dias
+que o celular da empresa reenvie voltaria a avisar; a linha de base silenciosa (R2) cobre o caso comum.
+
+**D21. APK assinado por script local, chave fora do repositório.** *Decidida.*
+Motivo: `apps/android/gerar-release.sh` cria a chave em `~/.config/alerta-plantao` na primeira vez e assina
+com `apksigner`. A chave nunca entra no git; perdê-la impede atualizar o app nos celulares já instalados
+(backup é do dono). Sem Play Store: o APK é instalado direto, com "fontes desconhecidas".
+
 ## 2026-11-14 (R1, API e banco)
 
 **D14. Plantão é por aparelho pessoal; uma instalação atende uma só equipe.** *Decidida.*

@@ -1,8 +1,8 @@
 # ARQUITETURA
 
-> Status: **R3 (alarme no celular pessoal) entregue em 2026-11-14**, sobre a R2 (app Android único), a R1
-> (API e banco) e a R0 (monorepo e gate). O deploy na VM (R4) está **planejado**, marcado como `[R4]`, e só
-> começa com o OK do dono em [plano-produto.md](plano-produto.md). Decisões com motivo em
+> Status: **R4 (deploy) entregue no código em 2026-11-14**, sobre a R3 (alarme), a R2 (app Android único), a R1
+> (API e banco) e a R0 (monorepo e gate). Falta **instalar na VM** (comandos em [deploy.md](deploy.md)) e o
+> teste real com o WhatsApp da empresa. O FCM (R5) é opcional. Plano em [plano-produto.md](plano-produto.md). Decisões com motivo em
 > [decisoes.md](decisoes.md); o contrato HTTP em [api.md](api.md); as tabelas em
 > [banco-de-dados.md](banco-de-dados.md).
 
@@ -56,8 +56,8 @@ Quem decide o quê:
 
 ### Como você configura (o que muda no uso)
 
-Antes eram muitas etapas: servidor ntfy, usuário, token, tópico, app ntfy no pessoal e três campos no
-app. A R2 trocou isso por **um app só** e um **código de pareamento**:
+Antes eram muitas etapas (servidor ntfy, usuário, token, tópico, app ntfy no pessoal e três campos no
+app; o ntfy saiu na R4). A R2 trocou isso por **um app só** e um **código de pareamento**:
 
 1. Você abre a página do servidor (ou roda um comando) e ele mostra um código de 6 dígitos.
 2. No celular da empresa: instala o app, escolhe "Celular da empresa", digita o código e libera o
@@ -73,7 +73,7 @@ Sem URL, sem token, sem tópico. Detalhes e fases em [plano-produto.md](plano-pr
 | `packages/domain` | pronto: aviso, comando, assinatura, aparelho, pareamento, evento | — |
 | `apps/api` + Postgres | **pronto (R1)**: pareamento, evento, deduplicação, plantão, "Vi", SSE | `[R4]` no ar na VM |
 | `apps/android` | **pronto (R2 e R3)**: app único, pareamento, alarme com tela cheia e "Vi"; testado só no emulador | conferência em celular real |
-| `deploy/ntfy` | provisório, **o app não usa mais** | `[R4]` sai; entra o deploy da API na borda da VM |
+| `deploy/` | **pronto (R4)**: imagem, compose (db, migração, API), borda, deploy automático; testado local com Caddy | instalar na VM |
 | `apps/windows` | funciona (revisado, nunca executado no Linux) | sem mudança planejada |
 
 ---
@@ -197,8 +197,7 @@ Alerta-de-plantao/
 │   ├── api/src/        main.ts  http/ (app, rotas/, admin, aparelho, limite, error-map)  composicao/
 │   ├── android/        app Kotlin (Gradle, fora do Bun)
 │   └── windows/        alerta do PC (PowerShell)
-└── deploy/
-    └── ntfy/           provisório, sai em R4
+└── deploy/             Dockerfile, compose(.borda).yml, plantao.caddy.modelo, atualizar.sh, instalar.sh, codigo.sh, systemd
 ```
 
 ---
