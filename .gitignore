@@ -16,9 +16,6 @@ apps/android/local.properties
 *.keystore
 *.jks
 
-# servidor
-deploy/ntfy/.env
-
 # Bun / TypeScript
 node_modules/
 dist/

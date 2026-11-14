@@ -1,0 +1,71 @@
+name: plantao
+
+x-logs: &logs
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "5"
+
+x-app: &app
+  <<: *logs
+  image: plantao-app:local
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+  restart: unless-stopped
+
+x-banco: &banco
+  NODE_ENV: production
+  TZ: America/Sao_Paulo
+  DATABASE_URL: postgres://plantao@db:5432/plantao
+  PGPASSWORD: ${POSTGRES_PASSWORD}
+
+services:
+  db:
+    <<: *logs
+    image: postgres:18.2-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: plantao
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD em deploy/.env}
+      POSTGRES_DB: plantao
+      TZ: America/Sao_Paulo
+    volumes:
+      - banco:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plantao -d plantao"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  migracao:
+    <<: *app
+    restart: "no"
+    environment: *banco
+    command: ["bun", "tools/db/src/migrate.ts"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *app
+    environment:
+      <<: *banco
+      API_PORT: "3350"
+      CONFIAR_NO_PROXY: "true"
+      PLANTAO_ADMIN_TOKEN: ${PLANTAO_ADMIN_TOKEN:?defina PLANTAO_ADMIN_TOKEN em deploy/.env}
+      PLANTAO_ENVIAR_TEXTO: ${PLANTAO_ENVIAR_TEXTO:-false}
+      RETENCAO_EM_DIAS: ${RETENCAO_EM_DIAS:-7}
+    command: ["bun", "apps/api/src/main.ts"]
+    depends_on:
+      migracao:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "bun", "-e", "const r = await fetch('http://localhost:3350/health'); process.exit(r.ok ? 0 : 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  banco:

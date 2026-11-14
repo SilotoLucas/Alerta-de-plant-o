@@ -1,0 +1,12 @@
+services:
+  api:
+    networks:
+      default: {}
+      borda:
+        aliases:
+          - plantao-api
+
+networks:
+  borda:
+    name: borda
+    external: true

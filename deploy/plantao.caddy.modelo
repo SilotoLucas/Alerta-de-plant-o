@@ -1,0 +1,5 @@
+DOMINIO_DO_PLANTAO {
+	reverse_proxy plantao-api:3350 {
+		flush_interval -1
+	}
+}
