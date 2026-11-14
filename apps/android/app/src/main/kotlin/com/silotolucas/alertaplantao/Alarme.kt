@@ -64,7 +64,7 @@ object Alarme {
         val notificacao = NotificationCompat.Builder(context, CANAL)
             .setSmallIcon(R.drawable.ic_sino)
             .setContentTitle(aviso.titulo)
-            .setContentText(aviso.texto)
+            .setContentText(Historico.emUmaLinha(aviso.texto))
             .setStyle(NotificationCompat.BigTextStyle().bigText(aviso.texto))
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)

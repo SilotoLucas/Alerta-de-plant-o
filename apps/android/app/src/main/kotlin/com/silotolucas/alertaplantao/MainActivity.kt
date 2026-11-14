@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusPessoal: TextView
     private lateinit var chavePlantao: SwitchCompat
     private lateinit var statusAlarme: TextView
+    private lateinit var listaAvisos: TextView
     private lateinit var botoesDoAlarme: Map<Pendencia, View>
     private val handler = Handler(Looper.getMainLooper())
     private val fundo = Executors.newSingleThreadExecutor()
@@ -85,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         statusPessoal = findViewById(R.id.status_pessoal)
         chavePlantao = findViewById(R.id.chave_plantao)
         statusAlarme = findViewById(R.id.status_alarme)
+        listaAvisos = findViewById(R.id.lista_avisos)
         botoesDoAlarme = mapOf(
             Pendencia.NOTIFICACOES to findViewById(R.id.botao_notificacoes),
             Pendencia.NAO_PERTURBE to findViewById(R.id.botao_nao_perturbe),
@@ -273,11 +275,13 @@ class MainActivity : AppCompatActivity() {
             val conexao = getString(
                 if (cfg.conexao == "conectado") R.string.status_conectado else R.string.status_reconectando,
             )
-            val ultimo = cfg.ultimoAviso.ifEmpty { getString(R.string.nenhum_aviso) }
             statusPessoal.text = listOf(
                 getString(R.string.pareado_como, cfg.nome), conexao,
-                getString(R.string.ultimo_aviso, ultimo),
             ).joinToString("\n")
+            val avisos = Historico.ler(cfg.historico)
+            val formato = DateFormat.getTimeInstance(DateFormat.SHORT)
+            listaAvisos.text = if (avisos.isEmpty()) getString(R.string.nenhum_aviso)
+            else avisos.joinToString("\n\n") { "${formato.format(Date(it.hora))}  ${it.titulo}\n${it.texto}" }
             val pendencias = Preparo.pendencias(Alarme.situacao(this))
             statusAlarme.text = if (pendencias.isEmpty()) getString(R.string.alarme_ok)
             else pendencias.joinToString("\n") { getString(textoDaPendencia(it)) }

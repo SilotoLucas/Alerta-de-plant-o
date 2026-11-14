@@ -39,7 +39,7 @@ class Config(context: Context) {
             .putString("servidor", endereco).putString("token", p.token)
             .putString("papel", p.papel).putString("nome", p.nome)
             .putBoolean("inicializado", false).putString("ultimoAvisoId", "")
-            .putBoolean("plantaoAtivo", false).putString("conexao", "").putString("ultimoAviso", "")
+            .putBoolean("plantaoAtivo", false).putString("conexao", "").putString("historico", "")
             .apply()
     }
 
@@ -72,9 +72,10 @@ class Config(context: Context) {
         get() = prefs.getString("conexao", "") ?: ""
         set(v) = prefs.edit().putString("conexao", v).apply()
 
-    var ultimoAviso: String
-        get() = prefs.getString("ultimoAviso", "") ?: ""
-        set(v) = prefs.edit().putString("ultimoAviso", v).apply()
+    /** Modo Pessoal: JSON com os ultimos avisos (ver `Historico`). */
+    var historico: String
+        get() = prefs.getString("historico", "") ?: ""
+        set(v) = prefs.edit().putString("historico", v).apply()
 
     var entregaHora: Long
         get() = prefs.getLong("entregaHora", 0L)

@@ -193,6 +193,21 @@
                 android:textAppearance="?attr/textAppearanceBodyMedium" />
 
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/ultimos_avisos"
+                android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+            <TextView
+                android:id="@+id/lista_avisos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+
+            <TextView
                 android:id="@+id/status_alarme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

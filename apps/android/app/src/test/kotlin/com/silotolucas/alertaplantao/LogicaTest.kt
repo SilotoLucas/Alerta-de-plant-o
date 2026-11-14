@@ -166,3 +166,35 @@ class PreparoTest {
         assertEquals(600_000L, Preparo.TEMPO_MAXIMO_MS)
     }
 }
+
+class HistoricoTest {
+    private fun aviso(n: Int) = AvisoGuardado(n.toLong(), "Conversa $n", "texto $n")
+
+    @Test
+    fun `o aviso novo entra na frente e o historico guarda so os cinco mais recentes`() {
+        var json = ""
+        for (n in 1..7) json = Historico.adicionar(json, aviso(n))
+        val lidos = Historico.ler(json)
+        assertEquals(Historico.MAXIMO, lidos.size)
+        assertEquals(listOf(7L, 6L, 5L, 4L, 3L), lidos.map { it.hora })
+        assertEquals(AvisoGuardado(7, "Conversa 7", "texto 7"), lidos.first())
+    }
+
+    @Test
+    fun `texto com quebra de linha e acentos volta igual da leitura`() {
+        val original = AvisoGuardado(1, "Grupo Suporte", "Ana: o sistema caiu\nBruno: já vi\n+ 2 mensagens")
+        assertEquals(listOf(original), Historico.ler(Historico.adicionar("", original)))
+    }
+
+    @Test
+    fun `json vazio ou quebrado vira lista vazia, nunca derruba a tela`() {
+        assertTrue(Historico.ler("").isEmpty())
+        assertTrue(Historico.ler("{quebrado").isEmpty())
+    }
+
+    @Test
+    fun `a notificacao recolhida junta as linhas do aviso numa so`() {
+        assertEquals("Ana: oi · Bruno: tudo bem · + 2 mensagens", Historico.emUmaLinha("Ana: oi\nBruno: tudo bem\n+ 2 mensagens"))
+        assertEquals("Nova mensagem", Historico.emUmaLinha("Nova mensagem"))
+    }
+}

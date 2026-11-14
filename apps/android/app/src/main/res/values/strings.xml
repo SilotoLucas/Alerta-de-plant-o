@@ -36,8 +36,8 @@
     <string name="pessoal_ajuda">Ligado: você recebe os avisos do celular da empresa. Desligado: nenhum aviso chega.</string>
     <string name="status_conectado">✔ Conectado ao servidor</string>
     <string name="status_reconectando">⚠ Reconectando ao servidor…</string>
-    <string name="nenhum_aviso">nenhum ainda</string>
-    <string name="ultimo_aviso">Último aviso: %1$s</string>
+    <string name="nenhum_aviso">Nenhum aviso recebido ainda.</string>
+    <string name="ultimos_avisos">Últimos avisos</string>
     <string name="vi">Vi</string>
 
     <string name="alarme_titulo_secao">Alarme</string>

@@ -101,7 +101,7 @@ class AvisoService : Service() {
         val aviso = Protocolo.lerAviso(evento.dados) ?: return
         Alarme.tocar(this, aviso)
         cfg.ultimoAvisoId = aviso.id
-        cfg.ultimoAviso = "${aviso.titulo}: ${aviso.texto}"
+        cfg.historico = Historico.adicionar(cfg.historico, AvisoGuardado(System.currentTimeMillis(), aviso.titulo, aviso.texto))
     }
 
     private fun notificacaoDoServico(): Notification {
