@@ -1,4 +1,26 @@
 {
   "files": [],
-  "references": [{ "path": "packages/domain" }, { "path": "tools/quality" }]
+  "references": [
+    {
+      "path": "packages/domain"
+    },
+    {
+      "path": "packages/application"
+    },
+    {
+      "path": "packages/contracts"
+    },
+    {
+      "path": "packages/infra"
+    },
+    {
+      "path": "tools/db"
+    },
+    {
+      "path": "apps/api"
+    },
+    {
+      "path": "tools/quality"
+    }
+  ]
 }

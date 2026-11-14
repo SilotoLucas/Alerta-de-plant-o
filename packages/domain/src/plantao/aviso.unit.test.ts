@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { instante } from '../compartilhado'
-import { MAXIMO_DE_CARACTERES_POR_LINHA, montarAviso } from './aviso'
+import { lerAvisoId, MAXIMO_DE_CARACTERES_POR_LINHA, montarAviso } from './aviso'
 import type { Mensagem } from './mensagem'
 
 const mensagem = (remetente: string | null, texto: string, hora = 1): Mensagem => ({
@@ -53,5 +53,12 @@ describe('montarAviso com o texto', () => {
   test('trunca texto longo para o limite por linha', () => {
     const longa = mensagem(null, 'a'.repeat(MAXIMO_DE_CARACTERES_POR_LINHA + 300))
     expect(montarAviso('G', [longa], true).texto).toHaveLength(MAXIMO_DE_CARACTERES_POR_LINHA)
+  })
+})
+
+describe('lerAvisoId', () => {
+  test('só aceita UUID, para o texto da URL nunca chegar ao banco como id', () => {
+    expect(lerAvisoId('0192f1e2-0000-7000-8000-000000000001')).not.toBeNull()
+    expect(lerAvisoId('1; drop table avisos')).toBeNull()
   })
 })

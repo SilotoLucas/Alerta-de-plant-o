@@ -1,0 +1,18 @@
+{
+  "name": "@plantao/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --env-file=../../.env --watch src/main.ts",
+    "start": "bun --env-file=../../.env src/main.ts"
+  },
+  "dependencies": {
+    "@plantao/application": "workspace:*",
+    "@plantao/contracts": "workspace:*",
+    "@plantao/domain": "workspace:*",
+    "@plantao/infra": "workspace:*",
+    "@sinclair/typebox": "catalog:",
+    "elysia": "1.4.30"
+  }
+}

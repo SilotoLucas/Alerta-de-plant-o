@@ -10,8 +10,35 @@ Bússola (`~/Documentos/Projetos/bussola`), que seguem `metodologia-projetos-cla
 decisões de stack repetem as de lá quando o motivo vale igual, para este repositório não depender de
 outro para se explicar.
 
-**Situação de cada decisão:** *Decidida* já está em vigor. *Proposta* é o que eu recomendo para R1 a
-R4 e **aguarda o OK do dono**; nada depende dela no código ainda.
+**Situação de cada decisão:** *Decidida* já está em vigor. *Proposta* aguarda o OK do dono. D7 a D10
+foram aprovadas em 2026-11-14 (o dono disse "pode seguir com a R1") e valem desde a R1.
+
+## 2026-11-14 (R1, API e banco)
+
+**D14. Plantão é por aparelho pessoal; uma instalação atende uma só equipe.** *Decidida.*
+Motivo: vários consultores vão usar. O evento da empresa vai para **todos** os aparelhos pessoais com
+plantão ligado naquele instante, e cada um liga e desliga o seu. Sem contas de usuário: quem pareia é
+um aparelho, e o dono (senha de administrador) controla os códigos. Descartado: um interruptor global
+(ligaria o plantão de todo mundo), contas com e-mail e senha (mais uma tela e mais dado pessoal para
+quem só quer ser avisado).
+
+**D15. Pareamento: o administrador gera um código de 6 dígitos de 10 minutos, de uso único.** *Decidida.*
+Motivo: é o mais curto de digitar no celular. Com 10⁶ combinações o risco é adivinhar, então a rota que
+troca o código por token tem limite de 5 tentativas por minuto por IP e o código morre ao ser usado.
+O token (32 bytes aleatórios) só aparece uma vez e o banco guarda o SHA-256. Quem gera os códigos é
+quem tem `PLANTAO_ADMIN_TOKEN`; a API não sobe sem ele. Descartado: QR code (precisaria de câmera no
+app e de tela no servidor), código longo (ruim de digitar).
+
+**D16. Deduplicação por hash, nunca pelo texto.** *Decidida.*
+Motivo: D11 diz que o texto do cliente fica fora do servidor por padrão, e a assinatura
+(`conversa + hora + remetente + texto`) contém o texto. O banco guarda só o SHA-256 dela. Ainda vale a
+lição 1: a hora entra na assinatura, então "ok" duas vezes são duas mensagens.
+
+**D17. Id de aviso é UUIDv7 e o reenvio usa `Last-Event-ID`.** *Decidida.*
+Motivo: UUIDv7 ordena no tempo, então `id > último` basta e não precisa de coluna serial nem de
+relógio do cliente. O servidor reenvia o que não foi visto nas últimas 24 h. Limite assumido: o
+notificador em memória vale para **uma** instância da API (D8); escalar para duas exige FCM ou um
+canal compartilhado.
 
 ## 2026-11-14 (R0, reestruturação)
 
@@ -44,7 +71,7 @@ Motivo: sem deriva silenciosa. Tabela com o motivo de cada uma em `arquitetura.m
 
 ### Produto e infraestrutura
 
-**D7. Servidor próprio na VM entre os dois celulares.** *Proposta.*
+**D7. Servidor próprio na VM entre os dois celulares.** *Decidida (R1).*
 Motivo: dois celulares em rede móvel não se alcançam sem um servidor no meio (NAT da operadora). A VM
 já existe e já tem proxy, deploy automático e Postgres. O servidor só repassa um aviso curto.
 Descartado: comunicação direta entre os celulares (tecnicamente inviável sem relé); Telegram bot
@@ -52,18 +79,18 @@ Descartado: comunicação direta entre os celulares (tecnicamente inviável sem 
 (sem controle nem privacidade); Firebase como único canal (conta Google e dado fora, e o app ainda
 precisaria de servidor para saber para quem mandar).
 
-**D8. Entrega ao celular pessoal por conexão aberta (SSE) na v1; FCM como segundo adaptador depois.** *Proposta.*
+**D8. Entrega ao celular pessoal por conexão aberta (SSE) na v1; FCM como segundo adaptador depois.** *Decidida (R1).*
 Motivo: SSE funciona hoje, sem conta Google; a porta `Notificador` deixa trocar para FCM sem mexer no
 resto. Risco assumido: alguns fabricantes matam o serviço em segundo plano. Gatilho para rever: o
 alerta falhar em uso real, ou o dono querer a confiabilidade do push. Descartado: FCM desde o início
 (exige criar projeto Firebase antes de qualquer coisa funcionar).
 
-**D9. Um único app Android com dois modos (Empresa e Pessoal), pareado por código de 6 dígitos.** *Proposta.*
+**D9. Um único app Android com dois modos (Empresa e Pessoal), pareado por código de 6 dígitos.** *Decidida (R1).*
 Motivo: era a reclamação de "muitas etapas". Sai URL, tópico, token e o segundo app (ntfy). Descartado:
 dois apps separados (dobra a manutenção) e manter ntfy (mais uma peça para instalar e configurar).
 Substitui a escolha do ntfy registrada em `historico-fases-1-e-2.md`.
 
-**D10. O servidor decide; o app só repassa.** *Proposta.*
+**D10. O servidor decide; o app só repassa.** *Decidida (R1).*
 Motivo: deduplicação (índice único por aparelho e assinatura), regra de privacidade e estado de plantão
 num só lugar, testados em TypeScript puro. O app Android deixa de guardar estado e de montar texto, e
 fica menor. Preserva a lição 1 (o WhatsApp reaproveita a mesma notificação): a assinatura é hora +

@@ -17,8 +17,8 @@ O servidor só repassa um aviso curto; ele não acessa o WhatsApp. Como cada pe�
 |---|---|---|
 | [`apps/windows`](apps/windows/README.md) | Alerta no computador: cartão no topo, brilho nas bordas e som, para quem usa o WhatsApp Desktop | funciona |
 | [`apps/android`](apps/android/README.md) | App do celular da empresa (lê o WhatsApp e avisa o celular pessoal) | funciona, fala com um ntfy provisório |
-| `apps/api` | Servidor próprio na VM (pareamento, deduplicação, plantão ligado/desligado, entrega) | planejado (R1) |
-| [`packages/domain`](packages/domain) | Regras puras do plantão, testadas | pronto |
+| [`apps/api`](docs/api.md) | Servidor próprio na VM (pareamento, deduplicação, plantão ligado/desligado, "Vi", entrega por SSE) | pronto, roda local; vai para a VM na R4 |
+| [`packages/*`](packages) | `domain` (regras puras), `application` (casos de uso), `contracts`, `infra` (Postgres) | pronto |
 | [`tools/quality`](tools/quality) | Gate de qualidade (`bun run validate`) | pronto |
 | [`deploy/ntfy`](deploy/ntfy/README.md) | Servidor ntfy usado hoje pelo app Android | provisório |
 | [`docs`](docs) | Arquitetura, decisões, plano e histórico | atualizado |
@@ -27,7 +27,10 @@ O servidor só repassa um aviso curto; ele não acessa o WhatsApp. Como cada pe�
 
 ```bash
 bun install               # instala as ferramentas e os hooks do git
-bun run validate          # gate completo (menos de 10 s hoje)
+bun run db:up             # Postgres local (container plantao-db, porta 5435)
+bun run validate          # gate completo (cerca de 10 s)
+cp .env.example .env      # ajuste PLANTAO_ADMIN_TOKEN
+bun run dev:api           # API em http://localhost:3350
 ```
 
 - **Instalar o alerta no Windows:** copie `apps/windows` para o PC e dê dois cliques em `Instalar.cmd`.

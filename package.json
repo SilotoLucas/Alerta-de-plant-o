@@ -8,10 +8,12 @@
   },
   "workspaces": {
     "packages": [
+      "apps/api",
       "packages/*",
       "tools/*"
     ],
     "catalog": {
+      "@sinclair/typebox": "0.34.52",
       "@types/bun": "1.4.0",
       "typescript": "6.0.3"
     }
@@ -22,6 +24,11 @@
     "typecheck": "tsc --build",
     "format": "biome format --write .",
     "test": "bun test",
+    "db:up": "bun tools/db/src/up.ts",
+    "db:down": "bun tools/db/src/down.ts",
+    "db:migrate": "bun tools/db/src/migrate.ts",
+    "infra:verificar": "bun tools/db/src/verificar.ts",
+    "dev:api": "bun --filter @plantao/api dev",
     "prepare": "lefthook install",
     "deps": "depcruise --config .dependency-cruiser.cjs --output-type err packages apps tools",
     "names": "ls-lint",

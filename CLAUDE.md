@@ -3,8 +3,8 @@
 ## Só para o Claude Code
 
 - Regras por camada em `.claude/rules/` entram no contexto pelo `paths:` quando você abre um arquivo
-  daquela pasta (`domain`, `quality`, `android`, `windows`). Procedimentos recorrentes estão em
-  `.claude/skills/` (`/gate`); `/new-usecase` e `/migration` entram na R1, junto de `application`.
+  daquela pasta (`domain`, `application`, `contracts`, `infra`, `api`, `quality`, `android`, `windows`).
+  Procedimentos recorrentes estão em `.claude/skills/` (`/gate`, `/new-usecase`, `/migration`).
 - Subagentes: no máximo 3 ao mesmo tempo, nunca dois no mesmo diretório. Dono único, sem paralelo:
   `tools/quality/`, `.dependency-cruiser.cjs`, `biome.json`, `docs/decisoes.md`.
 - Hooks do Claude Code estão **propostos** em `.claude/hooks.proposto.json`. Não copie para

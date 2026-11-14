@@ -1,4 +1,10 @@
+import { ehUuid, type Marcado } from '../compartilhado'
 import type { Mensagem } from './mensagem'
+
+export type AvisoId = Marcado<string, 'AvisoId'>
+
+export const lerAvisoId = (texto: string): AvisoId | null =>
+  ehUuid(texto) ? (texto as AvisoId) : null
 
 export type Aviso = { readonly titulo: string; readonly texto: string }
 

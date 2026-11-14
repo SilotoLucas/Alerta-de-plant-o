@@ -28,7 +28,7 @@ Três toques e um código por celular, sem URL, token, tópico nem segundo app.
 | Fase | Entrega | Pronto quando | Estado |
 |---|---|---|---|
 | **R0** | Estrutura no padrão do Bússola/Abanou: monorepo, gate verde, docs, `packages/domain`, apps reorganizados | `bun run validate` verde; apps antigos seguem funcionando | **entregue** |
-| **R1** | `apps/api` (Elysia) + Postgres + `application`/`infra`/`contracts`: pareamento, receber evento, deduplicar, plantão ligado/desligado, "Vi", entrega por SSE | testes unit e e2e verdes; rotas todas em e2e; testado com `curl` | planejada |
+| **R1** | `apps/api` (Elysia) + Postgres + `application`/`infra`/`contracts`: pareamento, receber evento, deduplicar, plantão ligado/desligado, "Vi", entrega por SSE | testes unit e e2e verdes; rotas todas em e2e; testado com `curl` | **entregue** ([api.md](api.md)) |
 | **R2** | `apps/android` simplificado: um app, dois modos, pareamento por código, fala com a API, sem estado local | testado no emulador com notificação simulada, ida e volta completa | planejada |
 | **R3** | Acabamento do alerta no celular pessoal: som alto, fura o modo silencioso, botão "Vi", tela cheia opcional | conferido em celular real | planejada |
 | **R4** | Deploy da API na borda da VM (Caddy, timer de deploy, `.env`), `deploy/ntfy` removido, APK assinado, guia para os consultores | funcionando na VM com https, com WhatsApp real | planejada |
@@ -39,11 +39,8 @@ próxima; só avanço com o seu OK ao fim de cada uma.
 
 ## O que eu preciso de você
 
-- **Agora:** confirmar a direção de [decisoes.md](decisoes.md) D7 a D10 (servidor próprio na VM,
-  um app com dois modos e pareamento por código, SSE antes de FCM, servidor decide). Se algo não
-  agradar, eu ajusto antes de escrever a API.
-- **Agora:** dizer se o **celular pessoal é Android ou iPhone**. O app é Android; no iPhone o modo
-  Pessoal não existe (ver "Fora do escopo").
+- **Resolvido:** D7 a D10 aprovadas; o celular pessoal é Android.
+- **R2:** nada além de ver o app no emulador; o servidor local é `bun run db:up` + `bun run dev:api`.
 - **R4:** rodar na VM os comandos que eu passar (acesso SSH é seu); informar o domínio ou subdomínio.
 - **Teste real:** um celular com o WhatsApp da empresa para conferir grupos e várias mensagens
   seguidas. É o que falta validar desde a Fase 2.
@@ -52,6 +49,6 @@ próxima; só avanço com o seu OK ao fim de cada uma.
 
 Responder mensagem pelo app, ler o conteúdo além do que a notificação mostra, usar WhatsApp Web não
 oficial (risco de banimento do número da empresa), iOS no celular da empresa (o iOS não deixa
-um app ler notificação de outro). **iPhone como celular pessoal:** o app é Android, então o modo
-Pessoal não roda nele. Se for o seu caso, a saída é uma entrega por push (R5) para um app de iOS
-ou manter o ntfy como adaptador do `Notificador`; decido com você antes da R1.
+um app ler notificação de outro). **iPhone como celular pessoal:** o app é Android (o seu é), então o
+modo Pessoal não roda em iPhone. Se um consultor tiver iPhone, a saída é uma entrega por push (R5) para
+um app de iOS, como segundo adaptador do `Notificador`; decidimos quando alguém precisar.

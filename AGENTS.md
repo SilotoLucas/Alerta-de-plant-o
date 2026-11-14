@@ -1,20 +1,19 @@
 # Alerta de Plantão
 
 Avisa o consultor de plantão quando chega mensagem no WhatsApp do celular da empresa: no PC (alerta
-local no Windows) e no celular pessoal (app Android + servidor na VM). Monorepo Bun com
-`packages/domain` (regras puras) e `tools/quality` (gate); `apps/android` (Kotlin) e `apps/windows`
-(PowerShell) vivem em `apps/` mas fora dos workspaces do Bun.
+local no Windows) e no celular pessoal (app Android + servidor na VM). Monorepo Bun com `apps/api`
+(Elysia), `packages/{domain,application,contracts,infra}`, `tools/quality` (gate) e `tools/db`;
+`apps/android` (Kotlin) e `apps/windows` (PowerShell) vivem em `apps/` mas fora dos workspaces do Bun.
 
 Leia antes de mexer na topologia: [docs/arquitetura.md](docs/arquitetura.md) (como funciona a
 infraestrutura, pastas, matriz de importação, portas), [docs/decisoes.md](docs/decisoes.md) (D1–D13,
 não reabra sem motivo novo), [docs/plano-produto.md](docs/plano-produto.md) (fluxo, fases R0–R5) e
 [docs/historico-fases-1-e-2.md](docs/historico-fases-1-e-2.md) (lições das duas primeiras fases).
 
-Estado: **R0 pronta** (estrutura, gate verde, `packages/domain` com aviso, comando e assinatura de
-mensagem). O app Android e o alerta do Windows já funcionam como antes; o Android ainda fala com um
-ntfy provisório. **Próxima: R1** (`apps/api` + Postgres), que **só começa depois do OK do dono** nas
-decisões D7–D10 e de saber se o celular pessoal é Android ou iPhone. Decisões marcadas como
-*Proposta* em `docs/decisoes.md` não estão aprovadas.
+Estado: **R1 pronta** (API com pareamento por código, evento com deduplicação, plantão por aparelho
+pessoal, "Vi" e entrega por SSE; Postgres; gate verde). O app Android e o alerta do Windows seguem como
+antes; o Android ainda fala com um ntfy provisório e só muda na **R2**, que **só começa depois do OK do
+dono**. Contrato HTTP: [docs/api.md](docs/api.md). Decisões D7–D17 estão decididas.
 
 ## Comandos
 
@@ -24,7 +23,10 @@ decisões D7–D10 e de saber se o celular pessoal é Android ou iPhone. Decisõ
 | `bun run validate:quick` | gate rápido (<10s): rode a cada iteração |
 | `bun run validate` | gate completo (<90s): verde antes de propor commit |
 | `bun tools/quality/src/validate.ts --mode full --only fronteira,estilo` | só as fases citadas |
-| `bun run test` | todos os testes |
+| `bun run test` | todos os testes (os e2e precisam do Postgres: `bun run db:up` antes) |
+| `bun run db:up` / `db:down` / `db:migrate` | sobe o container `plantao-db` (5435), derruba, aplica migrations |
+| `bun run infra:verificar` | confere se o banco de teste está de pé (o gate chama) |
+| `bun run dev:api` | API em `localhost:3350` (precisa de `.env`: copie `.env.example`) |
 | `bun run format` | formata com Biome |
 | `cd apps/android && ./gradlew testDebugUnitTest assembleDebug` | testes e APK do app (veja `.claude/rules/android.md` para o `JAVA_HOME`) |
 
@@ -45,7 +47,7 @@ bruta inteira.
 ## Camadas
 
 ```
-domain  ←  application  ←  infra  ←  apps/api (composição + http)        [application, infra e api nascem na R1]
+domain  ←  application  ←  infra  ←  apps/api (composição + http)
 ```
 
 - `packages/domain`: zero npm, zero runtime. Sem `Date`, `fetch`, `process`, `crypto`, timers,
@@ -63,7 +65,7 @@ domain  ←  application  ←  infra  ←  apps/api (composição + http)       
 Tudo isso é imposto por `.dependency-cruiser.cjs`, `biome.json` e `tools/quality`. Se a regra
 atrapalha, a conversa é com o dono e vira entrada em `docs/decisoes.md`, não exceção silenciosa.
 
-## Ordem de criação de uma feature (a partir da R1)
+## Ordem de criação de uma feature
 
 Do mais barato para o mais caro de testar. Até o passo 5 nada depende de banco nem de framework.
 
@@ -90,7 +92,9 @@ real, um teste unitário sem I/O depende dela, ou a fronteira já está declarad
   quantidade (`montarAviso`, D11). Texto em log, em `docs/` ou em fixture: nunca, só dado inventado.
 - Token de aparelho e segredo só em variável de ambiente ou no armazenamento privado do app; nunca em
   log, em `BuildConfig`, em URL nem no repositório.
-- Recurso que o aparelho não pode ver: **404**, nunca 403.
+- Recurso que o aparelho não pode ver, ou rota de outro papel: **404**, nunca 403.
+- A senha de administrador (`PLANTAO_ADMIN_TOKEN`) e o token de aparelho nunca aparecem em log, resposta
+  de listagem nem teste; o banco guarda só o hash do token. A API não sobe sem a senha.
 - Erro de banco nunca chega cru ao cliente: 500 opaco, log redigido.
 
 ## Testes
@@ -150,3 +154,11 @@ Abanou. As deste projeto:
     `tipo: descrição`.
 13. **A identidade do git está configurada só neste repositório** (Lucas Siloto). Não há `gh` nem token:
     o push é feito pelo dono.
+14. **Rota com `response:` no Elysia restringe os códigos de `status()`.** Rota que devolve erro de domínio
+    fica sem `response:` (veja `.claude/rules/api.md`); o contrato está em `docs/api.md`.
+15. **`expect(await sql`...`).toEqual([...])` não compila** (o `RowList` não é `Array`): use
+    `expect([...(await sql`...`)])`.
+16. **SSE no Bun fecha por ociosidade** em 10 s: a rota chama `server.timeout(request, 0)` e manda
+    batimento a cada 20 s. Teste de stream lê com limite de tempo (`lerAte` em `avisos.e2e.test.ts`).
+17. **Os e2e usam o banco `plantao_teste`, que é apagado a cada arquivo.** Nunca aponte
+    `DATABASE_URL_TESTE` para outro banco (a infra recusa nome sem `_teste`).

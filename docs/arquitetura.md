@@ -1,10 +1,11 @@
 # ARQUITETURA
 
-> Status: **R0 (fundação) entregue em 2026-11-14.** Monorepo Bun com gate de qualidade no padrão do
-> Bússola e do Abanou, `packages/domain` com as regras do plantão, e os dois apps que já existiam
-> (`apps/android`, `apps/windows`) reorganizados. A API, o banco e o app simplificado (R1–R3) estão
-> **planejados** aqui, marcados como `[R1]`, `[R2]`…, e só viram código depois do OK do dono em
-> [plano-produto.md](plano-produto.md). Decisões com motivo em [decisoes.md](decisoes.md).
+> Status: **R1 (API e banco) entregue em 2026-11-14**, sobre a R0 (monorepo e gate). `apps/api`,
+> `packages/{application,contracts,infra}` e `tools/db` existem e passam no gate. O app Android
+> simplificado e o alarme (R2, R3) e o deploy na VM (R4) estão **planejados**, marcados como `[R2]`…, e
+> só começam com o OK do dono em [plano-produto.md](plano-produto.md). Decisões com motivo em
+> [decisoes.md](decisoes.md); o contrato HTTP em [api.md](api.md); as tabelas em
+> [banco-de-dados.md](banco-de-dados.md).
 
 ---
 
@@ -70,8 +71,8 @@ Sem URL, sem token, sem tópico. Detalhes e fases em [plano-produto.md](plano-pr
 
 | Peça | Hoje | Depois |
 |---|---|---|
-| `packages/domain` | pronto: aviso, comando, assinatura de mensagem | `[R1]` aparelho, pareamento, plantão |
-| `apps/api` + Postgres | não existe | `[R1]` |
+| `packages/domain` | pronto: aviso, comando, assinatura, aparelho, pareamento, evento | — |
+| `apps/api` + Postgres | **pronto (R1)**: pareamento, evento, deduplicação, plantão, "Vi", SSE | `[R4]` no ar na VM |
 | `apps/android` | funciona, mas fala com um servidor **ntfy** (provisório) | `[R2]` app único, pareamento, fala com a API |
 | `deploy/ntfy` | provisório, ainda é o que o app usa | `[R4]` sai; entra o deploy da API na borda da VM |
 | `apps/windows` | funciona (revisado, nunca executado no Linux) | sem mudança planejada |
@@ -80,19 +81,19 @@ Sem URL, sem token, sem tópico. Detalhes e fases em [plano-produto.md](plano-pr
 
 ## B. Visão geral do monorepo
 
-Monorepo Bun com um `.git` na raiz e workspaces `packages/*`, `tools/*` (e `apps/api` quando nascer).
+Monorepo Bun com um `.git` na raiz e workspaces `apps/api`, `packages/*`, `tools/*`.
 `apps/android` (Gradle) e `apps/windows` (PowerShell) vivem em `apps/` mas **não são workspaces do
 Bun**: o gate de TypeScript não os enxerga e cada um tem a própria forma de testar.
 
 | Workspace | Nome | Papel | Estado |
 |---|---|---|---|
 | `packages/domain` | `@plantao/domain` | Regras puras. Zero npm, zero I/O. | existe |
-| `packages/application` | `@plantao/application` | Casos de uso e portas (declaradas pelo consumidor). | `[R1]` |
-| `packages/contracts` | `@plantao/contracts` | Schemas TypeBox de request/response, fonte única do formato de rede. | `[R1]` |
-| `packages/infra` | `@plantao/infra` | Adaptadores: Postgres, relógio, gerador de código, entrega SSE/FCM. | `[R1]` |
-| `apps/api` | `@plantao/api` | Composição + borda HTTP (Elysia). | `[R1]` |
+| `packages/application` | `@plantao/application` | Casos de uso e portas (declaradas pelo consumidor). | existe |
+| `packages/contracts` | `@plantao/contracts` | Schemas TypeBox de request/response, fonte única do formato de rede. | existe |
+| `packages/infra` | `@plantao/infra` | Adaptadores: Postgres, relógio, segredos, entrega em memória (SSE); FCM `[R5]`. | existe |
+| `apps/api` | `@plantao/api` | Composição + borda HTTP (Elysia). | existe |
 | `tools/quality` | `@plantao/quality` | `validate` e `validate:quick`, gates próprios, fixtures. | existe |
-| `tools/db` | `@plantao/db-tools` | Subir o Postgres local, aplicar migrations. | `[R1]` |
+| `tools/db` | `@plantao/db-tools` | Subir o Postgres local, aplicar migrations. | existe |
 | `apps/android` | — | App Kotlin (modos Empresa e Pessoal). | existe |
 | `apps/windows` | — | Alerta local no PC (PowerShell + C#). | existe |
 
@@ -123,8 +124,8 @@ expõe só pelo seu `index.ts`.
 |---|---|---|
 | `compartilhado` | `Result`, `Marcado`, `Instante` | existe |
 | `plantao` | `Mensagem` e assinatura (deduplicação), `Aviso` e a regra de privacidade, `Comando` | existe |
-| `aparelhos` | `Aparelho` (empresa ou pessoal), token, `Pareamento` com código e validade | `[R1]` |
-| `plantao` (estado) | plantão ativo ou não, quem ligou e quando, confirmação "Vi" | `[R1]` |
+| `aparelhos` | `Aparelho` (empresa ou pessoal), `Pareamento` com código de 6 dígitos e validade de 10 min | existe |
+| `plantao` (estado, avisos) | plantão ligado por aparelho pessoal (D14), `Evento` recebido, aviso e confirmação "Vi" | existe |
 
 Dependências permitidas entre contextos (linha importa coluna):
 
@@ -155,17 +156,18 @@ Bússola e ficam inativas: não há app TypeScript de interface neste projeto.
 
 ---
 
-## E. Catálogo de portas `[R1]`
+## E. Catálogo de portas
 
 Só nascem quando pagam uma conta (segundo implementador, teste sem I/O ou fronteira declarada aqui).
 
 | Porta | Contexto | Adaptador inicial | Alternativa prevista |
 |---|---|---|---|
-| `RepositorioDeAparelhos` | aparelhos | Postgres | — |
-| `RegistroDeMensagens` (devolve só as novas) | plantao | Postgres, índice único por aparelho e assinatura | — |
-| `Notificador` (entrega o aviso ao aparelho pessoal) | plantao | SSE em memória | **FCM** (D8) |
-| `GeradorDeCodigo` | aparelhos | aleatório seguro em `infra` | — |
-| `Relogio` | compartilhado | relógio do sistema | relógio parado nos testes |
+| `RepositorioDeAparelhos`, `RepositorioDePareamentos` | aparelhos | Postgres | — |
+| `Segredos` (código de 6 dígitos, token, hash) | aparelhos | `crypto` seguro em `infra/seguranca` | — |
+| `RegistroDeMensagens` (devolve só as novas; guarda hash) | plantao | Postgres, chave `(aparelho, assinatura)` | — |
+| `RepositorioDeAvisos`, `RepositorioDoPlantao` | plantao | Postgres | — |
+| `Notificador` (entrega o aviso ao aparelho pessoal) | plantao | em memória, alimenta o SSE | **FCM** (D8) |
+| `Relogio`, `GeradorDeId` | compartilhado | relógio do sistema, UUIDv7 | relógio parado e ids sequenciais nos testes |
 
 ---
 
@@ -173,22 +175,27 @@ Só nascem quando pagam uma conta (segundo implementador, teste sem I/O ou front
 
 ```
 Alerta-de-plantao/
-├── AGENTS.md  CLAUDE.md  README.md
+├── AGENTS.md  CLAUDE.md  README.md  .env.example
 ├── package.json  bunfig.toml  tsconfig.base.json  tsconfig.json
 ├── biome.json  .dependency-cruiser.cjs  .ls-lint.yml  .jscpd.json  knip.json
 ├── .gitleaks.toml  lefthook.yml  .dockerignore  .bun-version
 ├── .claude/
-│   ├── rules/          domain, quality, android, windows
-│   ├── skills/         gate/
+│   ├── rules/          domain, application, contracts, infra, api, quality, android, windows
+│   ├── skills/         gate/  new-usecase/  migration/
 │   └── hooks.proposto.json   NÃO instalado
 ├── docs/
-│   ├── arquitetura.md  decisoes.md  plano-produto.md
+│   ├── arquitetura.md  decisoes.md  plano-produto.md  api.md  banco-de-dados.md
 │   └── historico-fases-1-e-2.md   contexto das fases 1 e 2 (Windows e primeira versão Android)
 ├── packages/
-│   └── domain/src/     compartilhado/  plantao/
+│   ├── domain/src/       compartilhado/  aparelhos/  plantao/
+│   ├── application/src/  compartilhado/  aparelhos/  plantao/   (casos-de-uso/, portas.ts, fakes.ts)
+│   ├── contracts/src/    comum/  saude/  aparelhos/  plantao/
+│   └── infra/src/        db/ (conexao, migracoes, migrations/, repositorios/)  seguranca/  sistema/  entrega/
 ├── tools/
-│   └── quality/        gates + fixtures
+│   ├── quality/        gates + fixtures
+│   └── db/             db:up, db:down, db:migrate, infra:verificar
 ├── apps/
+│   ├── api/src/        main.ts  http/ (app, rotas/, admin, aparelho, limite, error-map)  composicao/
 │   ├── android/        app Kotlin (Gradle, fora do Bun)
 │   └── windows/        alerta do PC (PowerShell)
 └── deploy/

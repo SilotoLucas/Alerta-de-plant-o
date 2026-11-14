@@ -5,15 +5,8 @@
       "project": ["src/**/*.ts"]
     },
     "apps/api": {
-      "entry": ["src/main.ts", "src/coletor/main.ts"],
+      "entry": ["src/main.ts"],
       "project": ["src/**/*.ts"]
-    },
-    "apps/web": {
-      "entry": ["fluxos/**/*.e2e.test.ts"],
-      "project": ["src/**/*.{ts,tsx}", "fluxos/**/*.ts"]
-    },
-    "apps/mobile": {
-      "project": ["app/**/*.tsx", "src/**/*.{ts,tsx}"]
     },
     "tools/*": {
       "entry": ["src/*.ts"],
