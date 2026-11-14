@@ -26,7 +26,7 @@ outro aparelho é **404** `aviso-nao-encontrado`. Nunca 403.
 | `GET /aparelhos/eu` | aparelho | → `{id,papel,nome,criadoEm}`; serve para o app saber se o token ainda vale |
 | `GET /admin/aparelhos` | admin | → `{"itens":[…]}` |
 | `DELETE /admin/aparelhos/:id` | admin | → 204; 404 se não existe. O token do aparelho para de valer na hora |
-| `POST /eventos` | **empresa** | `{"conversa","mensagens":[{"remetente":string\|null,"texto","hora"}]}` → `{"novas":1,"avisados":1}`. Reenviar a mesma mensagem dá `novas:0`. 422 `evento-invalido` |
+| `POST /eventos` | **empresa** | `{"conversa","mensagens":[{"remetente":string\|null,"texto","hora"}],"silencioso"?:bool}` → `{"novas":1,"avisados":1}`. Reenviar a mesma mensagem dá `novas:0`. Com `silencioso:true` o servidor só registra as mensagens, sem avisar ninguém (o app usa na primeira conexão, para o que já estava na barra de notificações não virar alerta nem voltar depois). 422 `evento-invalido` |
 | `GET /avisos/fluxo` | **pessoal** | SSE (abaixo) |
 | `POST /avisos/:id/visto` | **pessoal** | → 204 (idempotente); 404 se o aviso não é seu |
 | `GET /plantao` | **pessoal** | → `{"ativo":bool,"alteradoEm":iso\|null}` |

@@ -27,13 +27,15 @@ export type DependenciasDeReceberEvento = {
   readonly incluirTexto: boolean
 }
 
+export type EntradaDeEvento = EventoRecebido & { readonly silencioso?: boolean }
+
 export type ResumoDoEvento = { readonly novas: number; readonly avisados: number }
 
 export const receberEvento =
   (deps: DependenciasDeReceberEvento) =>
   async (
     aparelho: Aparelho,
-    entrada: EventoRecebido,
+    entrada: EntradaDeEvento,
   ): Promise<Result<ResumoDoEvento, ErroDePlantao>> => {
     if (aparelho.papel !== 'empresa') return err('papel-incorreto')
     const evento = validarEvento(entrada)
@@ -45,7 +47,8 @@ export const receberEvento =
       evento.valor.mensagens,
       agora,
     )
-    if (novas.length === 0) return ok({ novas: 0, avisados: 0 })
+    if (novas.length === 0 || entrada.silencioso === true)
+      return ok({ novas: novas.length, avisados: 0 })
     const destinos = await deps.plantao.pessoaisEmPlantao()
     const aviso = montarAviso(evento.valor.conversa, novas, deps.incluirTexto)
     for (const destino of destinos) {

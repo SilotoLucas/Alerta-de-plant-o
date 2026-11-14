@@ -10,6 +10,7 @@ export const PedidoDeEvento = Type.Object({
     }),
     { maxItems: 200 },
   ),
+  silencioso: Type.Optional(Type.Boolean()),
 })
 export type PedidoDeEvento = Static<typeof PedidoDeEvento>
 

@@ -71,6 +71,20 @@ describe('receberEvento', () => {
     expect(deps.entregas.map((aviso) => aviso.aparelhoId)).toEqual([PESSOAL.id])
   })
 
+  test('evento silencioso só registra as mensagens: ninguém é avisado agora nem quando elas voltarem', async () => {
+    const deps = montarPlantao()
+    await deps.ligar(PESSOAL)
+    expect(await receberEvento(deps)(EMPRESA, { ...EVENTO, silencioso: true })).toEqual({
+      ok: true,
+      valor: { novas: 1, avisados: 0 },
+    })
+    expect(deps.entregas).toHaveLength(0)
+    expect(await receberEvento(deps)(EMPRESA, EVENTO)).toEqual({
+      ok: true,
+      valor: { novas: 0, avisados: 0 },
+    })
+  })
+
   test('aparelho pessoal não pode mandar evento', async () => {
     const deps = montarPlantao()
     expect(await receberEvento(deps)(PESSOAL, EVENTO)).toEqual({

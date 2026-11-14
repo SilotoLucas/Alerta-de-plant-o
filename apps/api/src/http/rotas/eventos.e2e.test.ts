@@ -76,6 +76,14 @@ describe('POST /eventos contra servidor e banco reais', () => {
     expect([...(await api.sql`select count(*)::int as n from avisos`)]).toEqual([{ n: 0 }])
   })
 
+  test('evento silencioso registra as mensagens sem avisar; elas não avisam quando chegarem de novo', async () => {
+    await ligar()
+    const silencioso = await enviar({ ...EVENTO, silencioso: true })
+    expect(await silencioso.json()).toEqual({ novas: 1, avisados: 0 })
+    expect(await (await enviar(EVENTO)).json()).toEqual({ novas: 0, avisados: 0 })
+    expect([...(await api.sql`select count(*)::int as n from avisos`)]).toEqual([{ n: 0 }])
+  })
+
   test('evento inválido é 422; fora do contrato é 400', async () => {
     const vazio = await enviar({ conversa: 'Ana', mensagens: [] })
     expect(vazio.status).toBe(422)

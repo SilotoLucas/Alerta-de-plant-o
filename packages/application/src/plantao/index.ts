@@ -13,6 +13,7 @@ export {
 } from './casos-de-uso/confirmar-visto/confirmar-visto.use-case'
 export {
   type DependenciasDeReceberEvento,
+  type EntradaDeEvento,
   type ResumoDoEvento,
   receberEvento,
 } from './casos-de-uso/receber-evento/receber-evento.use-case'
